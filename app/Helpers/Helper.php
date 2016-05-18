@@ -119,7 +119,7 @@ class Helper
         $manager_list = User::where('deleted_at', '=', null)
         ->orderBy('last_name', 'asc')
         ->orderBy('first_name', 'asc')->get()
-        ->lists('full_name', 'id');
+        ->lists('detailed_name', 'id');
 
         return $manager_list;
     }
@@ -143,7 +143,7 @@ class Helper
         ->where('show_in_list','=',1)
         ->orderBy('last_name', 'asc')
         ->orderBy('first_name', 'asc')->get()
-        ->lists('full_name', 'id');
+        ->lists('detailed_name', 'id');
         
         return $users_list;
     }
