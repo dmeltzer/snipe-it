@@ -107,22 +107,22 @@
             }
        } 
     });
-    
+
     //Search
     $("#search").val("Search...").addClass("empty");
-    
+
     $("#search").focus(function(){
         if($(this).val() == "Search...") {
             $(this).val("").removeClass("empty");
         }
     });
-    
+
     $("#search").blur(function() {
         if($(this).val() == "") {
             $(this).val("Search...").addClass("empty");
         }
     });
-    
+
     $("#search-submit").click(function(){
         var searchText = $("#search").val();
         if (searchText == "Search...")
@@ -139,7 +139,7 @@
         jsonOffset = 0;
         generateIsotopeFromJsonLink();
     });
-    
+
     $("#category-select").change(function(){
         var category = $("#modal-category_id").val();
         // Clear Current items
@@ -166,6 +166,5 @@
             $("#items").isotope('layout');
         });
     }
-
 </script>
 @stop
