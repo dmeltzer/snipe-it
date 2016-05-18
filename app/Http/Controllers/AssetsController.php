@@ -1591,3 +1591,4 @@ class AssetsController extends Controller
         return $data;
     }
 }
+
