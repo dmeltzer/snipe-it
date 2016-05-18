@@ -166,11 +166,10 @@ class Helper
 
     public static function managerList()
     {
-        $manager_list = array('' => trans('general.select_user')) +
-                        User::where('deleted_at', '=', null)
-                        ->orderBy('last_name', 'asc')
-                        ->orderBy('first_name', 'asc')->get()
-                        ->lists('complete_name', 'id')->toArray();
+        $manager_list = User::where('deleted_at', '=', null)
+        ->orderBy('last_name', 'asc')
+        ->orderBy('first_name', 'asc')->get()
+        ->lists('full_name', 'id');
 
         return $manager_list;
     }
@@ -190,13 +189,12 @@ class Helper
 
     public static function usersList()
     {
-        $users_list =   array( '' => trans('general.select_user')) +
-                        User::where('deleted_at', '=', null)
-                        ->where('show_in_list','=',1)
-                        ->orderBy('last_name', 'asc')
-                        ->orderBy('first_name', 'asc')->get()
-                        ->lists('complete_name', 'id')->toArray();
-
+        $users_list = User::where('deleted_at', '=', null)
+        ->where('show_in_list','=',1)
+        ->orderBy('last_name', 'asc')
+        ->orderBy('first_name', 'asc')->get()
+        ->lists('full_name', 'id');
+        
         return $users_list;
     }
 

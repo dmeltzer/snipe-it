@@ -125,12 +125,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getFullNameAttribute()
     {
-        return $this->first_name . " " . $this->last_name;
-    }
-
-    public function getCompleteNameAttribute()
-    {
-        return $this->last_name . ", " . $this->first_name . " (" . $this->username . ")";
+      return $this->first_name . " " . $this->last_name;
     }
 
     /**
