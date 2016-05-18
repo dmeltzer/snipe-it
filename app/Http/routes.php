@@ -7,6 +7,10 @@ use App\Models\Location;
 | Admin API Routes
 |--------------------------------------------------------------------------
 */
+
+Route::get('isotope', function () { 
+    return view('hardware.isotope');
+} );
 Route::group([ 'prefix' => 'api', 'middleware' => 'auth' ], function () {
 
     /*---Hardware API---*/
