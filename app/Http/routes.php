@@ -17,6 +17,7 @@ Route::group([ 'prefix' => 'api', 'middleware' => 'auth' ], function () {
     Route::group([ 'prefix' => 'hardware','middleware' => ['web','auth','authorize:assets.view']], function () {
 
         Route::get('list/{status?}', [ 'as' => 'api.hardware.list', 'uses' => 'AssetsController@getDatatable' ]);
+        Route::get('simplelist/{status?}', ['as' => 'api.images.list', 'uses' => 'AssetsController@getImageTable']);
 
         Route::post('import', 'AssetsController@postAPIImportUpload');
     });

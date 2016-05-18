@@ -1545,7 +1545,7 @@ class AssetsController extends Controller
             $row = array(
             'checkbox'      =>'<div class="text-center"><input type="checkbox" name="edit_asset['.$asset->id.']" class="one_required"></div>',
             'id'        => $asset->id,
-            'image' => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/'.$asset->image.'" height=50 width=50>' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
+            'image' => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
             'name'          => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
             'asset_tag'     => '<a title="'.e($asset->asset_tag).'" href="hardware/'.$asset->id.'/view">'.e($asset->asset_tag).'</a>',
             'serial'        => e($asset->serial),
@@ -1578,4 +1578,29 @@ class AssetsController extends Controller
 
         return $data;
     }
+    
+    public function getImageTable($status = null) {
+        $assets = Asset::select('assets.*')->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 
+        'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')
+        ->Hardware()->get();
+        
+        $assetCount = $assets->count();
+        $rows = array();
+        foreach($assets as $asset)
+        {
+            $row = array(
+                'name' => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
+                'id' => $asset->id 
+            );
+            if(!empty($asset->image))
+                $row['image'] = '<img src="'.config('app.url').'/uploads/assets/'.$asset->image.'" height=50 width=50>';
+            $rows[] = $row;
+        }
+        
+        $data = array('total'=>$assetCount, 'rows'=>$rows);
+        
+        return $data;
+    }
 }
+
+
