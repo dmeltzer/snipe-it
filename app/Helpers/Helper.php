@@ -144,7 +144,7 @@ class Helper
         ->orderBy('last_name', 'asc')
         ->orderBy('first_name', 'asc')->get()
         ->lists('detailed_name', 'id');
-        
+
         return $users_list;
     }
 
