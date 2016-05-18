@@ -1,13 +1,17 @@
+<!DOCTYPE HTML>
 @extends('layouts/default')
 <style>
 .grid-sizer,
-.grid-item {width:20%;}
+.grid-item {
+    float:left;
+    width:150px;
+    height:150px;
+    }
 .grid-item-width2 {width: 40%;}
 .grid { margin: 0 auto; }
 </style>
 @section('content')
     <div class="grid" id="items">
-        <div class="grid-sizer"></div>
         <!-- Will be filled with posts -->
     </div>
 @stop
@@ -15,79 +19,59 @@
 @section('moar_scripts')
 <script src="https://npmcdn.com/isotope-layout@3.0/dist/isotope.pkgd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.75/jsrender.js"></script>
-<script id="post" type="text/x-jsrender">
+<script id="post-template" type="text/x-jsrender">
+@%if image %@
 <div class="grid-item">
-    <!-- <img src="{{asset('assets/img')}}/@%:#data['image-url']%@") width="25%"> -->
-    <img src="@%:#data['image-url']%@">
- <!--    <em>Item:</em> @%:name%@ -->
+        @%:#data['image']%@
+         @%:name%@
 </div>
+@%/if%@
 </script>
 
 <script>
     $(document).ready( function() {  
         $.views.settings.delimiters("@%","%@");
-        var data = [
-            {
-                "name": "Teapot - White",
-                "image-url": "http://dummyimage.com/300.png/09f/fff"
-            },
-            {
-                "name": "Gold Oil Lamp",
-                "image-url": "http://dummyimage.com/100.png/063/ff2"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/200.png/69f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/400.png/49f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/200.png/89f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/50.png/09f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/20.png/69f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/40.png/49f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/150.png/89f/fff"
-            },
-            {
-                "name": "Little Silver Tray",
-                "image-url": "http://dummyimage.com/80.png/09f/fff"
-            }
-        ];
-      
-        var template = $.templates("#post");
-        
-        var htmlOutput = template.render(data);
-        // console.log(htmlOutput);
-        
-        $("#items").html(htmlOutput);
-        $("#items").isotope({
-            itemSelector: '.grid-item',
-            layoutMode: 'masonry',
-            masonry: {
-                columnWidth: 50,
-                gutter: 10
-            }
+                
+        $.getJSON( "{{route('api.hardware.list') . '?limit=200'}}", function(data) {
+            var template = $.templates("#post-template");
+            var htmlOutput = template.render(data.rows);
+            console.log(htmlOutput);
+            
+            $("#items").html(htmlOutput);
+            $("#items").isotope({
+                itemSelector: '.grid-item',
+                layoutMode: 'masonry',
+                masonry: {
+                    columnWidth: 100,
+                    gutter: 05
+                }
+            });
         });
-
     });
 
     $(window).load( function() {
         $("#items").isotope('layout');
+    });
+    
+    var page = 2;
+    $(window).scroll(function() {
+       var scrollTop = $(window).scrollTop;
+       var windowHeight = $(window).height();
+       var docuHeight = $(document).height();
+       if ($(window).scrollTop() >= ($(window).height() - 50)) {
+       
+    //    if(scrollTop + windowHeight == docuHeight) {
+           page++;
+           var localroute = "{{route('api.hardware.list') . '?limit=100'}}";
+           $.getJSON( localroute + "&offset=" + page * 100, function(data) {
+            var template = $.templates("#post-template");
+            var htmlOutput = template.render(data.rows);
+            // alert(htmlOutput);
+            
+            // $("#items").html(htmlOutput);
+            $("#items").append(htmlOutput).isotope( 'appended', htmlOutput).isotope('layout');
+        });
+       } 
     });
 
 </script>
