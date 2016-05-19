@@ -1414,7 +1414,7 @@ class AssetsController extends Controller
         }
         $assets= $assets->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')->Hardware();
         // dd(Input::get());
-            
+
         if (Input::has('search')) {
              $assets = $assets->TextSearch(e(Input::get('search')));
         }
@@ -1440,7 +1440,7 @@ class AssetsController extends Controller
             $assets->where('assets.image', '!=', '');
         }
 
- 
+
 
         switch ($status) {
             case 'Deleted':
