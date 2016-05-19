@@ -1406,11 +1406,10 @@ class AssetsController extends Controller
     */
     public function getDatatable($status = null)
     {
-
-
         $assets = Asset::select('assets.*')->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')
         ->Hardware();
-
+        // dd(Input::get());
+ 
         if (Input::has('search')) {
              $assets = $assets->TextSearch(e(Input::get('search')));
         }
@@ -1430,6 +1429,12 @@ class AssetsController extends Controller
         if (Input::has('order_number')) {
             $assets->where('order_number', '=', e(Input::get('order_number')));
         }
+        if (Input::has('withImages')) {
+            // dd('here');
+            $assets->whereNotNull('image');
+            $assets->where('image', '!=', '');
+        }
+
 
         switch ($status) {
             case 'Deleted':
@@ -1546,6 +1551,7 @@ class AssetsController extends Controller
             'checkbox'      =>'<div class="text-center"><input type="checkbox" name="edit_asset['.$asset->id.']" class="one_required"></div>',
             'id'        => $asset->id,
             'image' => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
+            'image-path' => $asset->image,
             'name'          => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
             'asset_tag'     => '<a title="'.e($asset->asset_tag).'" href="hardware/'.$asset->id.'/view">'.e($asset->asset_tag).'</a>',
             'serial'        => e($asset->serial),
