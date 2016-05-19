@@ -1440,6 +1440,9 @@ class AssetsController extends Controller
             $assets->where('assets.image', '!=', '');
         }
 
+        if (Input::has('category')) {
+            $assets->where( 'category', '=', e(Input::get('category')) );
+        }
 
 
         switch ($status) {

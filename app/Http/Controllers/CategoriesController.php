@@ -361,6 +361,7 @@ class CategoriesController extends Controller
                 'change' => $inout,
                 'actions' => $actions,
                 'companyName' => Company::getName($asset),
+                'imagePath' => $asset->image
             );
         }
 
@@ -391,6 +392,7 @@ class CategoriesController extends Controller
         } else {
             $limit = 50;
         }
+        
 
         $order = Input::get('order') === 'asc' ? 'asc' : 'desc';
 
@@ -401,7 +403,7 @@ class CategoriesController extends Controller
         $rows = array();
 
         foreach ($category_assets as $asset) {
-
+            
             $actions = '';
             $inout='';
 
