@@ -1409,7 +1409,7 @@ class AssetsController extends Controller
         $assets = Asset::select('assets.*')->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')
         ->Hardware();
         // dd(Input::get());
- 
+            
         if (Input::has('search')) {
              $assets = $assets->TextSearch(e(Input::get('search')));
         }
@@ -1435,6 +1435,9 @@ class AssetsController extends Controller
             $assets->where('image', '!=', '');
         }
 
+        if (Input::has('category')) {
+            $assets->where( 'category', '=', e(Input::get('category')) );
+        }
 
         switch ($status) {
             case 'Deleted':
@@ -1551,7 +1554,7 @@ class AssetsController extends Controller
             'checkbox'      =>'<div class="text-center"><input type="checkbox" name="edit_asset['.$asset->id.']" class="one_required"></div>',
             'id'        => $asset->id,
             'image' => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
-            'image-path' => $asset->image,
+            'imagePath' => $asset->image,
             'name'          => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
             'asset_tag'     => '<a title="'.e($asset->asset_tag).'" href="hardware/'.$asset->id.'/view">'.e($asset->asset_tag).'</a>',
             'serial'        => e($asset->serial),

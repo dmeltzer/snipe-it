@@ -76,12 +76,15 @@
 	}*/
 </style>
 @section('content')
-<form action="" id="search-form">
+<div class="row">
+    <div class="col-md-4 col-xs-6" id="category-select">{{ Form::select('modal-category', \App\Helpers\Helper::CategoryList() ,'', array('class'=>'select2 parent', 'style'=>'width:100%','id' => 'modal-category_id')) }}</div>
     <fieldset>
         <input type="text" id="search" name="search" />
-        <input type="submit" id="search-submit" value="" />
+        <button type="submit" id="search-submit" value="Search">Button</button>
     </fieldset>
-</form>
+</div>
+
+
 <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
     <div class="grid popup-container" id="items">
         <!-- Will be filled with posts -->
@@ -94,10 +97,9 @@
 <script src="{{ asset('assets/js/magnific-popup.js') }}"></script>
 
 <script id="post-template" type="text/x-jsrender">
-@%if image %@
+@%if imagePath %@
 <div class="grid-item">
-
-            <img class="popup-item" data-mfp-src="{{config('app.url') . '/uploads/assets/'}}@%:#data['image-path']%@" src="{{config('app.url').'/uploads/assets/thumbs/'}}@%:#data['image-path']%@">
+            <img class="popup-item" data-mfp-src="{{config('app.url') . '/uploads/assets/'}}@%:#data['imagePath']%@" src="{{config('app.url').'/uploads/assets/thumbs/'}}@%:#data['imagePath']%@">
          @%:name%@
 </div>
 @%/if%@
@@ -111,7 +113,7 @@
         $.getJSON( "{!!route('api.hardware.list', [ 'Requestable' , 'withImages' => 'true', 'limit' => '50'])!!}", function(data) {
             var template = $.templates("#post-template");
             var htmlOutput = template.render(data.rows);
-            // console.log(htmlOutput);
+            console.log(htmlOutput);
             
             $("#items").html(htmlOutput);
             $("#items").isotope({
@@ -199,8 +201,26 @@
             var htmlOutput = template.render(data.rows);
             $("#items").isotope( 'insert', $(htmlOutput));
             $("#items").isotope('layout');
+        });
     });
-});
+    
+    $("#category-select").change(function(){
+        var category = $("#modal-category_id").val();
+        // Clear Current items
+        var $items = $('#items');
+        var $elems = $items.isotope("getItemElements");
+        $items.isotope('remove', $elems);
+            
+        var localroute ="{!!route('api.categories.asset.view', ['CATEGORYPH', 'asset', 'limit' => '50' ])!!}";
+        $.getJSON( localroute.replace("CATEGORYPH", category), function(data) {
+            var template = $.templates("#post-template");
+            var htmlOutput = template.render(data.rows);
+            // alert(data.rows);
+            // alert(htmlOutput);
+            $("#items").isotope( 'insert', $(htmlOutput));
+            $("#items").isotope('layout');
+        });
+    });
 
 </script>
 @stop

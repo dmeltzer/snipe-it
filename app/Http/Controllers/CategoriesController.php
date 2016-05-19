@@ -361,6 +361,7 @@ class CategoriesController extends Controller
                 'change' => $inout,
                 'actions' => $actions,
                 'companyName' => Company::getName($asset),
+                'imagePath' => $asset->image
             );
         }
 
@@ -391,17 +392,18 @@ class CategoriesController extends Controller
         } else {
             $limit = 50;
         }
+        
 
         $order = Input::get('order') === 'asc' ? 'asc' : 'desc';
 
         $allowed_columns = ['id','name','serial','asset_tag'];
         $sort = in_array(Input::get('sort'), $allowed_columns) ? Input::get('sort') : 'created_at';
         $count = $category_assets->count();
-
+        $category_assets = $category_assets->take($limit);
         $rows = array();
 
         foreach ($category_assets as $asset) {
-
+            
             $actions = '';
             $inout='';
 
