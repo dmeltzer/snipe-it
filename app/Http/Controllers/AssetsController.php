@@ -1347,6 +1347,7 @@ class AssetsController extends Controller
         if (Input::has('order_number')) {
             $assets->where('order_number', '=', e(Input::get('order_number')));
         }
+        // THis might be removable with the new placeholder image.
         if (Input::has('withImages')) {
             // dd('here');
             $assets->whereNotNull('assets.image');
@@ -1462,9 +1463,9 @@ class AssetsController extends Controller
 
             $row = array(
             'checkbox'      =>'<div class="text-center"><input type="checkbox" name="edit_asset['.$asset->id.']" class="one_required"></div>',
-            'id'        => $asset->id,
-            'image' => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
-            'imagePath' => $asset->image,
+            'id'            => $asset->id,
+            'image'         => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
+            'imagePath'     => $asset->image ? $asset->image : 'placeholder.jpg',
             'name'          => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
             'asset_tag'     => '<a title="'.e($asset->asset_tag).'" href="hardware/'.$asset->id.'/view">'.e($asset->asset_tag).'</a>',
             'serial'        => e($asset->serial),

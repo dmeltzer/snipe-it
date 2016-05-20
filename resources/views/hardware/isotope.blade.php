@@ -24,7 +24,7 @@
 </style>
 @section('content')
 <div class="row">
-    <div class="col-md-4 col-xs-6" id="category-select">{{ Form::select('modal-category', \App\Helpers\Helper::CategoryList() ,'', array('class'=>'select2 parent', 'style'=>'width:100%','id' => 'modal-category_id')) }}</div>
+    <div class="col-md-4 col-xs-6" id="category-select">{{ Form::select('modal-category', array_merge(\App\Helpers\Helper::CategoryList(), ['' =>'All']) ,'', array('class'=>'select2 parent', 'style'=>'width:100%','id' => 'modal-category_id')) }}</div>
     <fieldset>
         <input type="text" id="search" name="search" />
         <button type="submit" id="search-submit" value="Search">Button</button>
@@ -52,7 +52,7 @@
 </script>
 
 <script>
-    var queryUrlTemplate ="{!!route('api.hardware.list', ['Requestable' , 'withImages' => 'true', 'limit' => 'LIMIT_PH', 'offset' => 'OFFSET_PH', 'search' => 'SEARCH_PH', 'category' => 'CATEGORY_PH'])!!}";
+    var queryUrlTemplate ="{!!route('api.hardware.list', ['Requestable' ,  'limit' => 'LIMIT_PH', 'offset' => 'OFFSET_PH', 'search' => 'SEARCH_PH', 'category' => 'CATEGORY_PH'])!!}";
     var jsonLimit = 50;
     var jsonSearch = '';
     var jsonOffset = '';
@@ -112,11 +112,11 @@
        var scrollTop = $(window).scrollTop;
        var windowHeight = $(window).height();
        var docuHeight = $(document).height();
-         if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10) {
+         if ($(window).scrollTop() >= $(document).height() - $(window).height() - 30) {
             if(!running) {
                 running = true;
                 //Add our filter
-                $jsonOffset += 50; // Should probably make this adjustable, but not yet.
+                jsonOffset += 50; // Should probably make this adjustable, but not yet.
                 generateIsotopeFromJsonLink();
                running = false;
             }
@@ -130,10 +130,6 @@
         if($(this).val() == "Search...") {
             $(this).val("").removeClass("empty");
         }
-    });
-                });
-            }
-       } 
     });
 
     $("#search").blur(function() {
