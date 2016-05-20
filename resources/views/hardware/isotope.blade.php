@@ -118,7 +118,7 @@
                 //Add our filter
                 $jsonOffset += 50; // Should probably make this adjustable, but not yet.
                 generateIsotopeFromJsonLink();
-                running = false;
+               running = false;
             }
        } 
     });
