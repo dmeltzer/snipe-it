@@ -12,6 +12,19 @@
 .popup-with-zoom {
     padding: 0;
 }
+.popup-item {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+.mfp-temp-title {
+    text-align: center;
+}
+.mfp-title-display, .mfp-title {
+    text-align: center !important;
+    text-decoration-style: bold;
+    font-size: 18px;
+}
 .isotope.no-transition,
 .isotope.no-transition .isotope-item,
 .isotope .isotope-item.no-transition {
@@ -48,7 +61,8 @@
 @%if imagePath %@
 <div class="grid-item">
             <img class="popup-item" data-mfp-src="{{config('app.url') . 'uploads/assets/'}}@%:#data['imagePath']%@" src="{{config('app.url'). 'uploads/assets/thumbs/'}}@%:#data['imagePath']%@">
-         @%:name%@
+         <div class="mfp-temp-title">@%:name%@</div>
+         <div class="hidden mfp-temp-notes">@%:notes%@</div>
 </div>
 @%/if%@
 </script>
@@ -57,7 +71,7 @@
     var queryUrlTemplate ="{!!route('api.hardware.list', ['Requestable' ,  'limit' => 'LIMIT_PH', 'offset' => 'OFFSET_PH', 'search' => 'SEARCH_PH', 'category' => 'CATEGORY_PH'])!!}";
     var jsonLimit = 50;
     var jsonSearch = '';
-    var jsonOffset = '';
+    var jsonOffset = '0';
     var jsonCategory = '';
     $(document).ready( function() {  
         // Initialize Isotope
@@ -81,24 +95,22 @@
             fixedContentPos: true,
             mainClass: 'popup-main popup-with-zoom',
             image: {
-                verticalFit: true
+                verticalFit: true,
+                markup: '<div class="mfp-figure">' +
+                            '<div class="mfp-close"></div>' +
+                            '<div class="mfp-img"></div>' +
+                            '<div class="mfp-bottom-bar">' +
+                                '<div class="mfp-title"></div>' +
+                                '<div class="mfp-counter"></div>' +
+                            '</div>' +
+                        '</div>',
+                 titleSrc: function(item) {
+                    title = "Name: " + item.el.parent().find('.mfp-temp-title').find('a').text();
+                    notes = "<small>Notes: " + item.el.parent().find('.mfp-temp-notes').text() + "</small>";
+                    return title + notes;;
+                 } 
             },
-            zoom: {
-                enabled: true,
-                duration: 300
-            }
-        });
-        
-        $('.popup-container').magnificPopup({
-            delegate: 'img.popup-item',
-            type: 'image',
-            closeOnContentClick: true,
-            closeBtnInside: false,
-            fixedContentPos: true,
-            mainClass: 'popup-main popup-with-zoom',
-            image: {
-                verticalFit: true
-            },
+           
             zoom: {
                 enabled: true,
                 duration: 300
@@ -176,13 +188,11 @@
     });
 
     function generateIsotopeFromJsonLink() {
-        // alert(jsonUrl);
         console.log('Updating Url');
         queryUrl = queryUrlTemplate.replace('LIMIT_PH', jsonLimit).replace('OFFSET_PH', jsonOffset).replace('SEARCH_PH', jsonSearch).replace('CATEGORY_PH', jsonCategory);   
         $.getJSON(queryUrl, function(data) {
             var template = $.templates("#post-template");
             var htmlOutput = template.render(data.rows);
-            // console.log(htmlOutput);
             $("#items").isotope( 'insert', $(htmlOutput));
             $("#items").isotope('layout');
         });
