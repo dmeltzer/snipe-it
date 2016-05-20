@@ -21,59 +21,7 @@
        -o-transition-duration: 0s;
           transition-duration: 0s;
 }
-/* search css below */
-/*fieldset { border: none }
 
-#search-form {
-	width: 190px;
-	position: relative;
-}*/
-/*#search {
-	background: #b2a48c;
-	border: 3px solid #402f1d;
-	color: #2b1e11;
-	height: 20px;
-	line-height: 20px;
-	width: 150px;
-	padding: 2px 4px;
-	position: absolute;
-	top: 11px;
-	left: 0
-}
-#search-submit {
-	background: #b2a48c url(../images/search.png) no-repeat 12px 7px;
-	border: 3px solid #402f1d;
-	height: 50px;
-	width: 50px;
-	position: absolute;
-	top: 0;
-	right: 0
-}*/
-
-.empty {
-	color: #524630;
-}
-
-/* CSS3 */
-/*#search { border-radius: 20px; 
-	-moz-border-radius: 20px; 
-	-webkit-border-radius: 20px;
-	background: -webkit-gradient(linear, left top, left bottom, from(#b2a48c), to(#9b8d74));
-	background: -moz-linear-gradient(top, #b2a48c, #9b8d74);
-	text-shadow: rgba(0,0,0,.2) 0 0 5px;
-}
-
-#search-submit { 
-	border-radius: 50px; 
-	-moz-border-radius: 50px; 
-	-webkit-border-radius: 50px; 
-	-mox-box-shadow: 0 0 5px black;
-
-	/* Webkit-transition */
-	-webkit-transition-property: background-color; 
-	-webkit-transition-duration: 0.4s, 0.4s; 
-	-webkit-transition-timing-function: linear, ease-in;
-	}*/
 </style>
 @section('content')
 <div class="row">
@@ -90,7 +38,6 @@
         <!-- Will be filled with posts -->
     </div>
 @stop
-        <!--<a class="popup-item" href="{{config('app.url') . '/uploads/assets/'}}@%:#data['image-path']%@">-->
 @section('moar_scripts')
 <script src="https://npmcdn.com/isotope-layout@3.0/dist/isotope.pkgd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.75/jsrender.js"></script>
@@ -106,25 +53,24 @@
 </script>
 
 <script>
-    var filter ="";
+    var queryUrlTemplate ="{!!route('api.hardware.list', ['Requestable' , 'withImages' => 'true', 'limit' => 'LIMIT_PH', 'offset' => 'OFFSET_PH', 'search' => 'SEARCH_PH', 'category' => 'CATEGORY_PH'])!!}";
+    var jsonLimit = 50;
+    var jsonSearch = '';
+    var jsonOffset = '';
+    var jsonCategory = '';
     $(document).ready( function() {  
+        // Initialize Isotope
+        $("#items").isotope({
+            itemSelector: '.grid-item',
+            layoutMode: 'masonry',
+            masonry: {
+                columnWidth: 115,
+                gutter: 0
+            }
+        });
         $.views.settings.delimiters("@%","%@");
                 
-        $.getJSON( "{!!route('api.hardware.list', [ 'Requestable' , 'withImages' => 'true', 'limit' => '50'])!!}", function(data) {
-            var template = $.templates("#post-template");
-            var htmlOutput = template.render(data.rows);
-            console.log(htmlOutput);
-            
-            $("#items").html(htmlOutput);
-            $("#items").isotope({
-                itemSelector: '.grid-item',
-                layoutMode: 'masonry',
-                masonry: {
-                    columnWidth: 115,
-                    gutter: 0
-                }
-            });
-        });
+        generateIsotopeFromJsonLink( "{!!route('api.hardware.list', [ 'Requestable' , 'withImages' => 'true', 'limit' => '50'])!!}");
         
         $('.popup-container').magnificPopup({
             delegate: 'img.popup-item',
@@ -155,21 +101,15 @@
          if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10) {
             if(!running) {
                 running = true;
-                var localroute ="{!!route('api.hardware.list', ['Requestable' , 'withImages' => 'true', 'limit' => '50', 'offset' => 'offsetPH'])!!}";
-                $.getJSON( localroute.replace("offsetPH", page * 50), function(data) {
-                var template = $.templates("#post-template");
-                var htmlOutput = template.render(data.rows);
-                $("#items").isotope( 'insert', $(htmlOutput));
-                $("#items").isotope('layout');
+                //Add our filter
+                $jsonOffset = page * 50;
+                generateIsotopeFromJsonLink();
                 page++;
                 running = false;
-            
-                });
             }
        } 
     });
     
-    var filter ="";
     //Search
     $("#search").val("Search...").addClass("empty");
     
@@ -181,7 +121,7 @@
     
     $("#search").blur(function() {
         if($(this).val() == "") {
-            $(this.val("Search...").addClass("empty"));
+            $(this).val("Search...").addClass("empty");
         }
     });
     
@@ -190,18 +130,15 @@
         if (searchText == "Search...")
             searchText = "";
         filter = searchText;
+
         // Clear Current items
         var $items = $('#items');
         var $elems = $items.isotope("getItemElements");
         $items.isotope('remove', $elems);
-            
-        var localroute ="{!!route('api.hardware.list', ['Requestable' , 'withImages' => 'true', 'limit' => '50', 'search' => 'searchPH'])!!}";
-        $.getJSON( localroute.replace("searchPH", filter), function(data) {
-            var template = $.templates("#post-template");
-            var htmlOutput = template.render(data.rows);
-            $("#items").isotope( 'insert', $(htmlOutput));
-            $("#items").isotope('layout');
-        });
+
+        //Add our filter and relayout
+        jsonSearch = filter;
+        generateIsotopeFromJsonLink();
     });
     
     $("#category-select").change(function(){
@@ -210,18 +147,24 @@
         var $items = $('#items');
         var $elems = $items.isotope("getItemElements");
         $items.isotope('remove', $elems);
-            
-        // var localroute ="{!!route('api.categories.asset.view', ['CATEGORYPH', 'asset', 'limit' => '50' ])!!}";
-        var localroute = "{!!route('api.hardware.list', ['Requestable', 'category' => 'CATEGORYPH', 'limit' => '50', 'withImages' => 'true'])!!}"
-        $.getJSON( localroute.replace("CATEGORYPH", category), function(data) {
+
+        //Add Our Filter and Relayout
+        jsonCategory = category;
+        generateIsotopeFromJsonLink();
+    });
+
+    function generateIsotopeFromJsonLink() {
+        // alert(jsonUrl);
+        console.log('Updating Url');
+        queryUrl = queryUrlTemplate.replace('LIMIT_PH', jsonLimit).replace('OFFSET_PH', jsonOffset).replace('SEARCH_PH', jsonSearch).replace('CATEGORY_PH', jsonCategory);   
+        $.getJSON(queryUrl, function(data) {
             var template = $.templates("#post-template");
             var htmlOutput = template.render(data.rows);
-            // alert(data.rows);
-            // alert(htmlOutput);
+            // console.log(htmlOutput);
             $("#items").isotope( 'insert', $(htmlOutput));
             $("#items").isotope('layout');
         });
-    });
+    }
 
 </script>
 @stop
