@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class RemoveOptionValueFromSettingsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('settings', function (Blueprint $table) {
+            //
+<<<<<<< 0ce0bcfa536f095aeee2f0074688673507b2578a
+            if(Schema::hasColumn('option_value', 'settings'))
+                $table->dropColumn('option_value');
+=======
+            $table->dropColumn('option_value');
+>>>>>>> Fix Migrations? Maybe?
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        //
+        Schema::table('settings', function (Blueprint $table) {
+            $table->string('option_value')->nullable();
+        });
+    }
+}
