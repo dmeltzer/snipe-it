@@ -93,7 +93,6 @@
         $("#items").isotope('layout');
     });
     var running = false;
-    var page = 1;
     $(window).scroll(function() {
        var scrollTop = $(window).scrollTop;
        var windowHeight = $(window).height();
@@ -102,9 +101,8 @@
             if(!running) {
                 running = true;
                 //Add our filter
-                $jsonOffset = page * 50;
+                $jsonOffset += 50; // Should probably make this adjustable, but not yet.
                 generateIsotopeFromJsonLink();
-                page++;
                 running = false;
             }
        } 
@@ -138,6 +136,7 @@
 
         //Add our filter and relayout
         jsonSearch = filter;
+        jsonOffset = 0;
         generateIsotopeFromJsonLink();
     });
     
@@ -149,7 +148,9 @@
         $items.isotope('remove', $elems);
 
         //Add Our Filter and Relayout
+        // Clear Offset here as well.
         jsonCategory = category;
+        jsonOffset=0;
         generateIsotopeFromJsonLink();
     });
 
