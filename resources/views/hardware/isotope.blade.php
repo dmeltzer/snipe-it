@@ -99,7 +99,7 @@
 <script id="post-template" type="text/x-jsrender">
 @%if imagePath %@
 <div class="grid-item">
-            <img class="popup-item" data-mfp-src="{{config('app.url') . '/uploads/assets/'}}@%:#data['imagePath']%@" src="{{config('app.url').'/uploads/assets/thumbs/'}}@%:#data['imagePath']%@">
+            <img class="popup-item" data-mfp-src="{{config('app.url') . 'uploads/assets/'}}@%:#data['imagePath']%@" src="{{config('app.url'). 'uploads/assets/thumbs/'}}@%:#data['imagePath']%@">
          @%:name%@
 </div>
 @%/if%@
@@ -211,7 +211,8 @@
         var $elems = $items.isotope("getItemElements");
         $items.isotope('remove', $elems);
             
-        var localroute ="{!!route('api.categories.asset.view', ['CATEGORYPH', 'asset', 'limit' => '50' ])!!}";
+        // var localroute ="{!!route('api.categories.asset.view', ['CATEGORYPH', 'asset', 'limit' => '50' ])!!}";
+        var localroute = "{!!route('api.hardware.list', ['Requestable', 'category' => 'CATEGORYPH', 'limit' => '50', 'withImages' => 'true'])!!}"
         $.getJSON( localroute.replace("CATEGORYPH", category), function(data) {
             var template = $.templates("#post-template");
             var htmlOutput = template.render(data.rows);
