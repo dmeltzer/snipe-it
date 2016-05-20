@@ -21,13 +21,15 @@
        -o-transition-duration: 0s;
           transition-duration: 0s;
 }
+.search-row {
+    padding-bottom: 15px;
+}
 </style>
 @section('content')
-<div class="row">
+<div class="row search-row">
     <div class="col-md-4 col-xs-6" id="category-select">{{ Form::select('modal-category', array_merge(\App\Helpers\Helper::CategoryList(), ['' =>'All']) ,'', array('class'=>'select2 parent', 'style'=>'width:100%','id' => 'modal-category_id')) }}</div>
     <fieldset>
-        <input type="text" id="search" name="search" />
-        <button type="submit" id="search-submit" value="Search">Button</button>
+        <input type="text" class="col-md-3" id="search" name="search" />
     </fieldset>
 </div>
 
@@ -137,8 +139,12 @@
             $(this).val("Search...").addClass("empty");
         }
     });
-
-    $("#search-submit").click(function(){
+    var $timer;
+    $("#search").keypress(function() {
+        clearTimeout($timer);
+        $timer = setTimeout(triggerSearch, 500 );
+    });
+        function triggerSearch() {
         var searchText = $("#search").val();
         if (searchText == "Search...")
             searchText = "";
@@ -153,7 +159,7 @@
         jsonSearch = filter;
         jsonOffset = 0;
         generateIsotopeFromJsonLink();
-    });
+    }
 
     $("#category-select").change(function(){
         var category = $("#modal-category_id").val();
