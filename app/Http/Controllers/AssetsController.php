@@ -1319,8 +1319,13 @@ class AssetsController extends Controller
     */
     public function getDatatable($status = null)
     {
-        $assets = Asset::select('assets.*')->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')
-        ->Hardware();
+       if (Input::has('category')) {
+            // $assets->where( 'category', '=', e(Input::get('category')) );
+            $assets = \App\Models\Category::find(e(Input::get('category')))->assets();
+        } else {
+            $assets = Asset::select('assets.*');
+        }
+        $assets= $assets->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')->Hardware();
         // dd(Input::get());
             
         if (Input::has('search')) {
@@ -1344,13 +1349,11 @@ class AssetsController extends Controller
         }
         if (Input::has('withImages')) {
             // dd('here');
-            $assets->whereNotNull('image');
-            $assets->where('image', '!=', '');
+            $assets->whereNotNull('assets.image');
+            $assets->where('assets.image', '!=', '');
         }
 
-        if (Input::has('category')) {
-            $assets->where( 'category', '=', e(Input::get('category')) );
-        }
+ 
 
         switch ($status) {
             case 'Deleted':
@@ -1489,29 +1492,7 @@ class AssetsController extends Controller
 
         return $data;
     }
+}    
     
-    public function getImageTable($status = null) {
-        $assets = Asset::select('assets.*')->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 
-        'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')
-        ->Hardware()->get();
-        
-        $assetCount = $assets->count();
-        $rows = array();
-        foreach($assets as $asset)
-        {
-            $row = array(
-                'name' => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
-                'id' => $asset->id 
-            );
-            if(!empty($asset->image))
-                $row['image'] = '<img src="'.config('app.url').'/uploads/assets/'.$asset->image.'" height=50 width=50>';
-            $rows[] = $row;
-        }
-        
-        $data = array('total'=>$assetCount, 'rows'=>$rows);
-        
-        return $data;
-    }
-}
 
 
