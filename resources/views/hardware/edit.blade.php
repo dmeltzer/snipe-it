@@ -290,7 +290,7 @@
            <label class="col-md-3 control-label" for="image">{{ trans('general.image_upload') }}</label>
            <div class="col-md-5">
                <!-- {{ Form::file('image') }} -->
-               <input type="file" id="file-upload" accept="image/*" name="image">
+               <input type="file" id="file-upload" accept="image/*" capture="camera" name="image">
                {!! $errors->first('image', '<span class="alert-msg">:message</span>') !!}
            </div>
        </div>
@@ -409,7 +409,9 @@ $(function () {
   });
 
    $("form").submit( function(event) {
+    $(this).append
     event.preventDefault();
+    alert('Submitted');
     return sendForm();
   });
 
@@ -425,6 +427,7 @@ $(function () {
       if( $fileInput != '' ) {
         if(window.File && window.FileReader && window.FormData) {
           var file = e.target.files[0];
+          var dataURL = "";
           if(file) {
             if(/^image\//i.test(file.type)) {
               readFile(file);
@@ -479,7 +482,7 @@ $(function () {
         newWidth = maxWidth;
       } else {
         newWidth = width * (maxHeight/height);
-        newHeight = maxHeight;
+        newHeight = height;
       }
       var canvas = document.createElement('canvas');
 
@@ -502,30 +505,30 @@ $(function () {
   }
 
   function sendForm() {
-    var form = $("#create-form").get(0);
-    var formData = $('#create-form').serializeArray();
-    formData.push({name:'image', value:imageData});
-    $.ajax({
-      type: 'POST',
-      url: form.action,
-      headers:{"X-Requested-With": 'XMLHttpRequest'},
-      data: formData,
-      dataType: 'json',
-      success: function(data) {
-        // AssetController flashes success to session, redirect to hardware page.
-         window.location.href = data.redirect_url;
-         // console.dir(data);
-         // console.log('submit was successful');
-      },
-      error: function(data) {
-        // AssetRequest Validator will flash all errors to session, this just refreshes to see them.
-        window.location.reload(true);
-        // console.log(JSON.stringify(data));
-         // console.log('error submitting');
-      }
-    });
+    var form = $("form").get(0);
+    // var formData = new FormData(form);
 
-    return false;
+    var formData = $('form').serializeArray();
+    console.log('old: ' + JSON.stringify(formData))
+    formData.push({name:'image', value:imageData});
+      console.log('new: ' + JSON.stringify(formData));
+    // }
+      // var xhr = new XMLHttpRequest();
+      // xhr.open('POST', form.action, true);
+      // // xhr.onload = function(e) { alert("Asset Created!" + e); };
+      // console.log(JSON.stringify(formData.entries()));
+      // xhr.send(JSON.stringify(formData));
+      $.ajax({
+        type: 'POST',
+        url: form.action,
+        data: formData,
+        dataType: 'json',
+      }).done(function(data) {
+        alert("Posted");
+        console.log("Response Data: " + data);
+      });
+ 
+      return false;
   }
 
 

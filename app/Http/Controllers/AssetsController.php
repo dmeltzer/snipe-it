@@ -143,6 +143,7 @@ class AssetsController extends Controller
     */
     public function postCreate(AssetRequest $request)
     {
+        // dd($request);
         // create a new model instance
         $asset = new Asset();
         $asset->model()->associate(AssetModel::find(e(Input::get('model_id'))));
@@ -210,41 +211,18 @@ class AssetsController extends Controller
 
         // Create the image (if one was chosen.)
         if (Input::has('image')) {
-
-
-
             $image = Input::get('image');
-
-            // After modification, the image is prefixed by mime info like the following:
-            // data:image/jpeg;base64,; This causes the image library to be unhappy, so we need to remove it.
             $header = explode(';', $image, 2)[0];
-            // Grab the image type from the header while we're at it.
-            $extension = substr($header, strpos($header, '/')+1);
-            // Start reading the image after the first comma, postceding the base64.
-            $image = substr($image, strpos($image, ',')+1);
+            $extension = substr( $header, strpos($header, '/')+1);
+            $image = substr( $image, strpos($image, ',')+1);
 
             $file_name = str_random(25).".".$extension;
-
-            $directory= public_path('uploads/assets/');
-            // Check if the uploads directory exists.  If not, try to create it.
-            if (!file_exists($directory)) {
-                mkdir($directory, 0755);
-            }
             $path = public_path('uploads/assets/'.$file_name);
-            try {
-                Image::make($image)->resize(500, 500, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })->save($path);
-                $asset->image = $file_name;
-            } catch(\Exception $e) {
-                \Input::flash();
-                $messageBag = new \Illuminate\Support\MessageBag();
-                $messageBag->add('image', $e->getMessage());
-                \Session()->flash('errors', \Session::get('errors', new \Illuminate\Support\ViewErrorBag)
-                    ->put('default', $messageBag));
-                return response()->json(['image' => $e->getMessage()], 422);
-            }
+            Image::make($image)->resize(300, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->save($path);
+            $asset->image = $file_name;
 
         }
 
@@ -1558,7 +1536,7 @@ class AssetsController extends Controller
             $row = array(
             'checkbox'      =>'<div class="text-center"><input type="checkbox" name="edit_asset['.$asset->id.']" class="one_required"></div>',
             'id'            => $asset->id,
-            'image'         => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
+            'image'         => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
             'imagePath'     => $asset->image ? $asset->image : 'placeholder.jpg',
             'name'          => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
             'asset_tag'     => '<a title="'.e($asset->asset_tag).'" href="hardware/'.$asset->id.'/view">'.e($asset->asset_tag).'</a>',
