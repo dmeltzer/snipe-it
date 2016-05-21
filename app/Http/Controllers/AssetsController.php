@@ -142,6 +142,7 @@ class AssetsController extends Controller
     */
     public function postCreate(AssetRequest $request)
     {
+        // dd($request);
         // create a new model instance
         $asset = new Asset();
         $asset->model()->associate(AssetModel::find(e(Input::get('model_id'))));
@@ -208,15 +209,19 @@ class AssetsController extends Controller
         }
 
         // Create the image (if one was chosen.)
-        if (Input::file('image')) {
-            $image = Input::file('image');
-            $file_name = str_random(25).".".$image->getClientOriginalExtension();
+        if (Input::has('image')) {
+            $image = Input::get('image');
+            $header = explode(';', $image, 2)[0];
+            $extension = substr( $header, strpos($header, '/')+1);
+            $image = substr( $image, strpos($image, ',')+1);
+
+            $file_name = str_random(25).".".$extension;
             $path = public_path('uploads/assets/'.$file_name);
-            Image::make($image->getRealPath())->resize(300, null, function ($constraint) {
+            Image::make($image)->resize(300, null, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })->save($path);
-                $asset->image = $file_name;
+            $asset->image = $file_name;
 
         }
 
@@ -1464,7 +1469,7 @@ class AssetsController extends Controller
             $row = array(
             'checkbox'      =>'<div class="text-center"><input type="checkbox" name="edit_asset['.$asset->id.']" class="one_required"></div>',
             'id'            => $asset->id,
-            'image'         => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/thumbs/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
+            'image'         => (($asset->image) && ($asset->image!='')) ? '<img src="'.config('app.url').'/uploads/assets/'.$asset->image.'">' : ((($asset->model) && ($asset->model->image!='')) ? '<img src="'.config('app.url').'/uploads/models/'.$asset->model->image.'" height=40 width=50>' : ''),
             'imagePath'     => $asset->image ? $asset->image : 'placeholder.jpg',
             'name'          => '<a title="'.e($asset->name).'" href="hardware/'.$asset->id.'/view">'.e($asset->name).'</a>',
             'asset_tag'     => '<a title="'.e($asset->asset_tag).'" href="hardware/'.$asset->id.'/view">'.e($asset->asset_tag).'</a>',

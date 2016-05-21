@@ -373,7 +373,8 @@
        <div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
            <label class="col-md-3 control-label" for="image">{{ trans('general.image_upload') }}</label>
            <div class="col-md-5">
-               {{ Form::file('image') }}
+               <!-- {{ Form::file('image') }} -->
+               <input type="file" id="file-upload" accept="image/*" capture="camera" name="image">
                {!! $errors->first('image', '<span class="alert-msg">:message</span>') !!}
            </div>
        </div>
@@ -383,7 +384,7 @@
       </div><!-- /.box-body -->
       <div class="box-footer text-right">
         <a class="btn btn-link" href="{{ URL::previous() }}" method="post" enctype="multipart/form-data">{{ trans('button.cancel') }}</a>
-        <button type="submit" class="btn btn-success"><i class="fa fa-check icon-white"></i> {{ trans('general.save') }}</button>
+        <button type="submit" class="btn btn-success" id="submit-button"><i class="fa fa-check icon-white"></i> {{ trans('general.save') }}</button>
       </div><!-- /.box-footer -->
     </div><!-- /.box -->
 
@@ -490,6 +491,130 @@ $(function () {
 
     //console.warn("The Model is: "+model+" and the select is: "+select);
   });
+
+   $("form").submit( function(event) {
+    $(this).append
+    event.preventDefault();
+    alert('Submitted');
+    return sendForm();
+  });
+
+  // Resize Files when chosen
+
+
+
+    //First check to see if there is a file before doing anything else
+
+    var imageData = "";
+    var $fileInput = $('#file-upload'); 
+    $fileInput.on('change', function(e) {
+      if( $fileInput != '' ) {
+        if(window.File && window.FileReader && window.FormData) {
+          var file = e.target.files[0];
+          var dataURL = "";
+          if(file) {
+            if(/^image\//i.test(file.type)) {
+              readFile(file);
+            } else {
+              alert('Invalid Image File :(');
+            }
+          }
+        }
+        else {
+          console.log("File API not supported, not resizing");
+        } 
+      }
+    });
+
+
+  function readFile(file) {
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+      processFile(reader.result, file.type);
+    }
+
+    reader.onerror = function() { 
+      alert("Unable to read file");
+    }
+
+    reader.readAsDataURL(file);
+  }
+
+  function processFile(dataURL, fileType) {
+    var maxWidth = 800;
+    var maxHeight = 800;
+
+    var image = new Image();
+    image.src = dataURL;
+
+    image.onload = function() {
+      var width = image.width;
+      var height = image.height;
+      var shouldResize = (width > maxWidth) || (height > maxHeight);
+
+      if(!shouldResize) {
+        imageData = dataURL;
+        return;
+      }
+
+      var newWidth;
+      var newHeight;
+
+      if( width > height) {
+        newHeight = height * (maxWidth/width);
+        newWidth = maxWidth;
+      } else {
+        newWidth = width * (maxHeight/height);
+        newHeight = height;
+      }
+      var canvas = document.createElement('canvas');
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      var context = canvas.getContext('2d');
+
+      context.drawImage(this, 0, 0, newWidth, newHeight);
+
+      dataURL = canvas.toDataURL( fileType );
+
+      imageData = dataURL;
+
+    };
+
+    image.onerror = function () {
+      alert('Unable to process file :(');
+    }
+  }
+
+  function sendForm() {
+    var form = $("form").get(0);
+    // var formData = new FormData(form);
+
+    var formData = $('form').serializeArray();
+    console.log('old: ' + JSON.stringify(formData))
+    formData.push({name:'image', value:imageData});
+      console.log('new: ' + JSON.stringify(formData));
+    // }
+      // var xhr = new XMLHttpRequest();
+      // xhr.open('POST', form.action, true);
+      // // xhr.onload = function(e) { alert("Asset Created!" + e); };
+      // console.log(JSON.stringify(formData.entries()));
+      // xhr.send(JSON.stringify(formData));
+      $.ajax({
+        type: 'POST',
+        url: form.action,
+        data: formData,
+        dataType: 'json',
+      }).done(function(data) {
+        alert("Posted");
+        console.log("Response Data: " + data);
+      });
+ 
+      return false;
+  }
+
 
   $('#modal-save').on('click',function () {
     var data={};
