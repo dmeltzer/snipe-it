@@ -60,7 +60,7 @@
 <script id="post-template" type="text/x-jsrender">
 @%if imagePath %@
 <div class="grid-item">
-            <img class="popup-item" data-mfp-src="{{config('app.url') . 'uploads/assets/'}}@%:#data['imagePath']%@" src="{{config('app.url'). 'uploads/assets/thumbs/'}}@%:#data['imagePath']%@">
+            <img class="popup-item" data-mfp-src="{{config('app.url') . '/uploads/assets/'}}@%:#data['imagePath']%@" src="{{config('app.url'). '/uploads/assets/thumbs/'}}@%:#data['imagePath']%@">
          <div class="mfp-temp-title">@%:name%@</div>
          <div class="hidden mfp-temp-notes">@%:notes%@</div>
 </div>
