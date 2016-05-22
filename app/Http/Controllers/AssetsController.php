@@ -215,10 +215,9 @@ class AssetsController extends Controller
             $header = explode(';', $image, 2)[0];
             $extension = substr( $header, strpos($header, '/')+1);
             $image = substr( $image, strpos($image, ',')+1);
-
             $file_name = str_random(25).".".$extension;
             $path = public_path('uploads/assets/'.$file_name);
-            Image::make($image)->resize(300, null, function ($constraint) {
+            Image::make($image)->resize(300, 300, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })->save($path);
