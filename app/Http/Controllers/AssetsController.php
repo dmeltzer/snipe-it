@@ -1384,7 +1384,6 @@ class AssetsController extends Controller
     public function getDatatable($status = null)
     {
        if (Input::has('category')) {
-            // $assets->where( 'category', '=', e(Input::get('category')) );
             $assets = \App\Models\Category::find(e(Input::get('category')))->assets();
         } else {
             $assets = Asset::select('assets.*');
@@ -1392,6 +1391,9 @@ class AssetsController extends Controller
         $assets= $assets->with('model', 'assigneduser', 'assigneduser.userloc', 'assetstatus', 'defaultLoc', 'assetlog', 'model', 'model.category', 'model.manufacturer', 'model.fieldset', 'assetstatus', 'assetloc', 'company')->Hardware();
         // dd(Input::get());
 
+        if (Input::has('model')) {
+            $assets = $assets->where('model_id', '=', e(Input::get('model')));
+        }
         if (Input::has('search')) {
              $assets = $assets->TextSearch(e(Input::get('search')));
         }
@@ -1411,15 +1413,6 @@ class AssetsController extends Controller
         if (Input::has('order_number')) {
             $assets->where('order_number', '=', e(Input::get('order_number')));
         }
-        // THis might be removable with the new placeholder image.
-        if (Input::has('withImages')) {
-            // dd('here');
-            $assets->whereNotNull('assets.image');
-            $assets->where('assets.image', '!=', '');
-        }
-
- 
-
 
         switch ($status) {
             case 'Deleted':

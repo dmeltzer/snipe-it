@@ -40,12 +40,15 @@
 </style>
 @section('content')
 <div class="row search-row">
-    <div class="col-md-4 col-xs-6" id="category-select">{{ Form::select('modal-category', array_merge(\App\Helpers\Helper::CategoryList(), ['' =>'All']) ,'', array('class'=>'select2 parent', 'style'=>'width:100%','id' => 'modal-category_id')) }}</div>
+    <div class="col-md-4 col-xs-6" id="category-select">{{ Form::select('modal-category', \App\Helpers\Helper::categoryList() ,'', array('placeholder'=>'All', 'class'=>'select2 parent', 'style'=>'width:100%','id' => 'modal-category_id')) }}</div>
     <fieldset>
         <input type="text" class="col-md-3" id="search" name="search" />
     </fieldset>
 </div>
-
+<div class="row">
+    <div class="col-md-3 col-md-offset-1" id="model-select">{{ Form::select('modal-model', \App\Helpers\Helper::modelList(), '', 
+    array('placeholder'=>'All', 'class'=>'select2 parent', 'style'=>'width:100%','id'=> 'modal-model')) }}</div>
+</div>
 
 <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
     <div class="grid popup-container" id="items">
@@ -68,11 +71,17 @@
 </script>
 
 <script>
-    var queryUrlTemplate ="{!!route('api.hardware.list', ['Requestable' ,  'limit' => 'LIMIT_PH', 'offset' => 'OFFSET_PH', 'search' => 'SEARCH_PH', 'category' => 'CATEGORY_PH'])!!}";
+
+    // $('#category-select').select2({
+    //     placeholder: "All",
+    //     allowClear: true,
+    // })
+    var queryUrlTemplate ="{!!route('api.hardware.list', ['Requestable' ,  'limit' => 'LIMIT_PH', 'offset' => 'OFFSET_PH', 'search' => 'SEARCH_PH', 'category' => 'CATEGORY_PH', 'model'=>'MODEL_PH' ])!!}";
     var jsonLimit = 50;
     var jsonSearch = '';
     var jsonOffset = '0';
     var jsonCategory = '';
+    var jsonModel = '';
     $(document).ready( function() {  
         // Initialize Isotope
         $("#items").isotope({
@@ -174,7 +183,36 @@
     }
 
     $("#category-select").change(function(){
-        var category = $("#modal-category_id").val();
+        // Reset Model Filter
+        var $modelUrl = "{{route('api.models.simpleList')}}";
+
+        var $category = $("#modal-category_id").val();
+        $("#modal-model").select2({
+            placeholder: 'All',
+            allowClear: true,
+            ajax: {
+                url: $modelUrl,
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        category_id: $category
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+
+                    return {
+                        results: $.map(data, function(item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            }
+                        })
+                    };
+                }
+            }
+        });
         // Clear Current items
         var $items = $('#items');
         var $elems = $items.isotope("getItemElements");
@@ -182,14 +220,31 @@
 
         //Add Our Filter and Relayout
         // Clear Offset here as well.
-        jsonCategory = category;
+        jsonCategory = $category;
         jsonOffset=0;
+        jsonModel = '';
         generateIsotopeFromJsonLink();
     });
 
+    $("#model-select").change(function(){
+        var model = $("#modal-model").val();
+        //Clear Current Items"
+        var $items = $("#items");
+        var $elems = $items.isotope("getItemElements");
+        $items.isotope('remove', $elems);
+
+        jsonModel = model;
+        jsonOffset = 0;
+        generateIsotopeFromJsonLink();
+    })
+
     function generateIsotopeFromJsonLink() {
         console.log('Updating Url');
-        queryUrl = queryUrlTemplate.replace('LIMIT_PH', jsonLimit).replace('OFFSET_PH', jsonOffset).replace('SEARCH_PH', jsonSearch).replace('CATEGORY_PH', jsonCategory);   
+        queryUrl = queryUrlTemplate.replace('LIMIT_PH', jsonLimit)
+                    .replace('OFFSET_PH', jsonOffset)
+                    .replace('SEARCH_PH', jsonSearch)
+                    .replace('CATEGORY_PH', jsonCategory)
+                    .replace('MODEL_PH', jsonModel);   
         $.getJSON(queryUrl, function(data) {
             var template = $.templates("#post-template");
             var htmlOutput = template.render(data.rows);
