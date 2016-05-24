@@ -401,19 +401,13 @@ class AssetModelsController extends Controller
 
 
 
-    /**
-    * Get the JSON response to populate the data tables on the
-    * Asset Model listing page.
-    *
-    * @author [A. Gianotto] [<snipe@snipe.net>]
-    * @since [v2.0]
-    * @param string $status
-    * @return String JSON
-    */
-
-    public function getDatatable($status = null)
+    private function getBaseData($status, \Illuminate\Http\Request $request)
     {
-        $models = AssetModel::with('category', 'assets', 'depreciation');
+        $categoryID = Input::has('category_id') ? Input::get('category_id') : 0;
+        if( $categoryID > 0)
+            $models = AssetModel::with('category', 'assets', 'depreciation')->where('category_id', '=', $categoryID);
+        else
+            $models = AssetModel::with('category', 'assets', 'depreciation');
 
         switch ($status) {
             case 'Deleted':
@@ -438,7 +432,6 @@ class AssetModelsController extends Controller
             $limit = 50;
         }
 
-
         $allowed_columns = ['id','name','modelno'];
         $order = Input::get('order') === 'asc' ? 'asc' : 'desc';
         $sort = in_array(Input::get('sort'), $allowed_columns) ? e(Input::get('sort')) : 'created_at';
@@ -446,8 +439,26 @@ class AssetModelsController extends Controller
         $models = $models->orderBy($sort, $order);
 
         $modelCount = $models->count();
-        $models = $models->skip($offset)->take($limit)->get();
+        return $models->skip($offset)->take($limit)->get();
+    }
 
+    public function getDataAPI($status = null)
+    {
+        return $this->getBaseData($status, request());
+    }
+    /**
+    * Get the JSON response to populate the data tables on the
+    * Asset Model listing page.
+    *
+    * @author [A. Gianotto] [<snipe@snipe.net>]
+    * @since [v2.0]
+    * @param string $status
+    * @return String JSON
+    */
+
+    public function getDatatable($status = null)
+    {
+        $models = $this->getBaseData($status, request());
         $rows = array();
 
         foreach ($models as $model) {

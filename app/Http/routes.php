@@ -135,6 +135,7 @@ Route::group([ 'prefix' => 'api', 'middleware' => 'auth' ], function () {
 
         Route::resource('/', 'AssetModelsController');
         Route::get('list/{status?}', [ 'as' => 'api.models.list', 'uses' => 'AssetModelsController@getDatatable' ]);
+        Route::get('simpleList/{status?}', [ 'as' => 'api.models.simpleList', 'uses' => 'AssetModelsController@getDataAPI']);
         Route::get('{modelID}/view', [ 'as' => 'api.models.view', 'uses' => 'AssetModelsController@getDataView' ]);
     });
 
@@ -150,6 +151,7 @@ Route::group([ 'prefix' => 'api', 'middleware' => 'auth' ], function () {
             [ 'as' => 'api.categories.consumable.view', 'uses' => 'CategoriesController@getDataViewConsumables' ] );
         Route::get( '{categoryID}/component/view',
             [ 'as' => 'api.categories.component.view', 'uses' => 'CategoriesController@getDataViewComponent' ] );
+        Route::get( 'realList', ['as' => 'api.categories.simpleList', 'uses' => 'CategoriesController@getDataApi']);
     });
 
     /*-- Suppliers API (mostly for creating new ones in-line while creating an asset) --*/
