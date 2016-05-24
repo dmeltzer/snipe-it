@@ -93,7 +93,7 @@ class AssetModel extends Model
         //HACK HACK HACK FIX IMPORT INSTEAD DUMMY
         if($this->manufacturer->name != "Unknown")
             $name = $this->manufacturer->name . ' ';
-        $name += $this->name;
+        $name .= $this->name;
         if ($this->modelno) {
             $name .=" / ".$this->modelno;
         }

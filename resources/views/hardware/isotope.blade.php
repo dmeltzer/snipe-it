@@ -94,7 +94,7 @@
         });
         $.views.settings.delimiters("@%","%@");
                 
-        generateIsotopeFromJsonLink( "{!!route('api.hardware.list', [ 'Requestable' , 'withImages' => 'true', 'limit' => '50'])!!}");
+        generateIsotopeFromJsonLink( "{!!route('api.hardware.list', [ 'Requestable', 'limit' => '50'])!!}");
         
         $('.popup-container').magnificPopup({
             delegate: 'img.popup-item',
@@ -119,7 +119,15 @@
                     return title + notes;;
                  } 
             },
-           
+            gallery: {
+                enabled: true,
+
+                preload: [0,2],
+
+                navigateByImageClick: true,
+
+                arrayMarkup: '<button title="%title%" type="button" class="mfp-arrow mfp-arrow-%dir%',
+            },
             zoom: {
                 enabled: true,
                 duration: 300
