@@ -8,9 +8,9 @@ use App\Models\Location;
 |--------------------------------------------------------------------------
 */
 
-Route::get('isotope', function () { 
+Route::get('isotope', ['as'=>'isotope', 'uses' => function () { 
     return view('hardware.isotope');
-} );
+}] );
 Route::group([ 'prefix' => 'api', 'middleware' => 'auth' ], function () {
 
     /*---Hardware API---*/
