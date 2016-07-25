@@ -25,6 +25,7 @@
             <i class="fa fa-barcode"></i>
           </div>
           <a href="{{ route('hardware') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          <a href="{{ route('isotope')  }}" class="small-box-footer">Gallery <i class="fa fa-arrow-circle-right"></i></a>
         </div>
       </div><!-- ./col -->
 

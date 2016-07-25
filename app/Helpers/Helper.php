@@ -119,7 +119,9 @@ class Helper
 
     public static function categoryList($category_type = null)
     {
-        $categories = Category::orderBy('name', 'asc')
+
+        //TODO: Translate
+        $category_list = array('' => 'Select a category') + Category::orderBy('name', 'asc')
                 ->whereNull('deleted_at')
                 ->orderBy('name', 'asc');
         if(!empty($category_type))
