@@ -76,7 +76,7 @@ class ViewAssetsController extends Controller
 
 
 
-    public function getRequestItem($itemType, $itemId = null)
+    public function getRequestItem($itemType, $itemId = null, Setting $settings)
     {
         $item = null;
         $fullItemType = 'App\\Models\\' . studly_case($itemType);
@@ -108,8 +108,6 @@ class ViewAssetsController extends Controller
             $data['item_url'] = route("view/${itemType}", $item->id);
             $slackMessage = $quantity. ' ' . class_basename(strtoupper($logaction->item_type)).' <'.$data['item_url'].'|'.$item->name.'> requested by <'.url('/').'/user/'.$item->id.'/view'.'|'.$user->present()->fullName().'>.';
         }
-
-        $settings = Setting::getSettings();
 
         if ($settings->slack_endpoint) {
 
@@ -190,7 +188,7 @@ class ViewAssetsController extends Controller
             return redirect()->route('requestable-assets')->with('success')->with('success', trans('admin/hardware/message.requests.success'));
         }
     }
-    public function getRequestAsset($assetId = null)
+    public function getRequestAsset($assetId = null, Setting $settings)
     {
 
         $user = Auth::user();
@@ -222,8 +220,6 @@ class ViewAssetsController extends Controller
 
             $data['requested_by'] = $user->present()->fullName();
             $data['asset_name'] = $asset->present()->name();
-
-            $settings = Setting::getSettings();
 
             if (($settings->alert_email!='')  && ($settings->alerts_enabled=='1') && (!config('app.lock_passwords'))) {
                 Mail::send('emails.asset-requested', $data, function ($m) use ($user, $settings) {

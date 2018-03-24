@@ -57,7 +57,7 @@ class LoginController extends Controller
             return redirect()->intended('dashboard');
         }
 
-        if (Setting::getSettings()->login_common_disabled == "1") {
+        if (app('Settings')->login_common_disabled == "1") {
             return view('errors.403');
         }
 
@@ -67,7 +67,7 @@ class LoginController extends Controller
     private function loginViaRemoteUser(Request $request)
     {
         $remote_user = $request->server('REMOTE_USER');
-        if (Setting::getSettings()->login_remote_user_enabled == "1" && isset($remote_user) && !empty($remote_user)) {
+        if (app('Settings')->login_remote_user_enabled == "1" && isset($remote_user) && !empty($remote_user)) {
             LOG::debug("Authenticatiing via REMOTE_USER.");
             try {
                 $user = User::where('username', '=', $remote_user)->whereNull('deleted_at')->first();
@@ -113,7 +113,7 @@ class LoginController extends Controller
 
             $ldap_attr = Ldap::parseAndMapLdapAttributes($ldap_user);
 
-            if (Setting::getSettings()->ldap_pw_sync=='1') {
+            if (app('Settings')->ldap_pw_sync=='1') {
                 $user->password = bcrypt($request->input('password'));
             }
 
@@ -133,7 +133,7 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        if (Setting::getSettings()->login_common_disabled == "1") {
+        if (app('Settings')->login_common_disabled == "1") {
             return view('errors.403');
         }
 
@@ -154,7 +154,7 @@ class LoginController extends Controller
         $user = null;
 
         // Should we even check for LDAP users?
-        if (Setting::getSettings()->ldap_enabled=='1') {
+        if (app('Settings')->ldap_enabled=='1') {
             LOG::debug("LDAP is enabled.");
             try {
                 $user = $this->loginViaLdap($request);
@@ -217,7 +217,7 @@ class LoginController extends Controller
 
 
         $google2fa_url = $google2fa->getQRCodeGoogleUrl(
-            urlencode(Setting::getSettings()->site_name),
+            urlencode(app('Settings')->site_name),
             urlencode($user->username),
             $user->two_factor_secret
         );
@@ -272,12 +272,11 @@ class LoginController extends Controller
      *
      * @return Redirect
      */
-    public function logout(Request $request)
+    public function logout(Request $request, Setting $settings)
     {
         $request->session()->forget('2fa_authed');
         Auth::logout();
 
-        $settings = Setting::getSettings();
         $customLogoutUrl = $settings->login_remote_user_custom_logout_url ;
         if ($settings->login_remote_user_enabled == '1' && $customLogoutUrl != '') {
             return redirect()->away($customLogoutUrl);

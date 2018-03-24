@@ -45,14 +45,13 @@ final class Company extends SnipeModel
 
     private static function isFullMultipleCompanySupportEnabled()
     {
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
 
         // NOTE: this can happen when seeding the database
         if (is_null($settings)) {
             return false;
-        } else {
-            return $settings->full_multiple_companies_support == 1;
         }
+        return $settings->full_multiple_companies_support == 1;
     }
 
     private static function scopeCompanyablesDirectly($query, $column = 'company_id', $table_name = null )

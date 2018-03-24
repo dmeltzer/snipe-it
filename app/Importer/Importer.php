@@ -249,13 +249,13 @@ abstract class Importer
             //$user_username = '';
             return false;
         } else {
-            $user_email_array = User::generateFormattedNameFromFullName(Setting::getSettings()->email_format, $user_name);
+            $user_email_array = User::generateFormattedNameFromFullName(app('Settings')->email_format, $user_name);
             $first_name = $user_email_array['first_name'];
             $last_name = $user_email_array['last_name'];
 
             if ($user_email=='') {
-                if (Setting::getSettings()->email_domain) {
-                    $user_email = str_slug($user_email_array['username']).'@'.Setting::getSettings()->email_domain;
+                if (app('Settings')->email_domain) {
+                    $user_email = str_slug($user_email_array['username']).'@'.app('Settings')->email_domain;
                 }
             }
 
@@ -263,7 +263,7 @@ abstract class Importer
                 if ($this->usernameFormat =='email') {
                     $user_username = $user_email;
                 } else {
-                    $user_name_array = User::generateFormattedNameFromFullName(Setting::getSettings()->username_format, $user_name);
+                    $user_name_array = User::generateFormattedNameFromFullName(app('Settings')->username_format, $user_name);
                     $user_username = $user_name_array['username'];
                 }
             }

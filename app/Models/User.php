@@ -325,8 +325,8 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
 
     public static function generateEmailFromFullName($name)
     {
-        $username = User::generateFormattedNameFromFullName(Setting::getSettings()->email_format, $name);
-        return $username['username'].'@'.Setting::getSettings()->email_domain;
+        $username = User::generateFormattedNameFromFullName(app('Settings')->email_format, $name);
+        return $username['username'].'@'.app('Settings')->email_domain;
     }
 
     public static function generateFormattedNameFromFullName($format = 'filastname', $users_name)
@@ -377,7 +377,7 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
      */
     public function two_factor_active () {
 
-        if (Setting::getSettings()->two_factor_enabled !='0') {
+        if (app('Settings')->two_factor_enabled !='0') {
             if (($this->two_factor_optin =='1') && ($this->two_factor_enrolled)) {
                 return true;
             }

@@ -618,12 +618,10 @@ class AssetsController extends Controller
     * @since [v1.0]
     * @return View
     */
-    public function show($assetId = null)
+    public function show($assetId = null, Setting $settings)
     {
-
         $asset = Asset::withTrashed()->find($assetId);
         $this->authorize('view', $asset);
-        $settings = Setting::getSettings();
 
 
 
@@ -648,8 +646,7 @@ class AssetsController extends Controller
                 'url' => route('qr_code/hardware', $asset->id)
             );
 
-            return view('hardware/view', compact('asset', 'qr_code', 'settings'))
-                ->with('use_currency', $use_currency)->with('audit_log', $audit_log);
+            return view('hardware/view', compact('asset', 'qr_code', 'use_currency', 'audit_log'));
         }
 
         return redirect()->route('hardware.index')->with('error', trans('admin/hardware/message.does_not_exist'));
@@ -663,10 +660,8 @@ class AssetsController extends Controller
     * @since [v1.0]
     * @return Response
     */
-    public function getQrCode($assetId = null)
+    public function getQrCode($assetId = null, Setting $settings)
     {
-        $settings = Setting::getSettings();
-
         if ($settings->qr_code == '1') {
             $asset = Asset::withTrashed()->find($assetId);
             if ($asset) {
@@ -698,9 +693,8 @@ class AssetsController extends Controller
      * @since [v1.0]
      * @return Response
      */
-    public function getBarCode($assetId = null)
+    public function getBarCode($assetId = null, Setting $settings)
     {
-        $settings = Setting::getSettings();
         $asset = Asset::find($assetId);
         $barcode_file = public_path().'/uploads/barcodes/'.str_slug($settings->alt_barcode).'-'.str_slug($asset->asset_tag).'.png';
 
@@ -810,7 +804,7 @@ class AssetsController extends Controller
                 if ($asset = Asset::where('asset_tag', '=', $asset_tag)->first()) {
                     $item[$asset_tag][$batch_counter]['asset_id'] = $asset->id;
 
-                    $base_username = User::generateFormattedNameFromFullName(Setting::getSettings()->username_format, $item[$asset_tag][$batch_counter]['name']);
+                    $base_username = User::generateFormattedNameFromFullName(app('Settings')->username_format, $item[$asset_tag][$batch_counter]['name']);
                     $user = User::where('username', '=', $base_username['username']);
                     $user_query = ' on username '.$base_username['username'];
 
@@ -1059,7 +1053,7 @@ class AssetsController extends Controller
                 $count = 0;
                 return view('hardware/labels')
                     ->with('assets', Asset::find($asset_ids))
-                    ->with('settings', Setting::getSettings())
+                    ->with('settings', app('Settings'))
                     ->with('count', $count);
             } elseif ($request->input('bulk_actions')=='delete') {
                 $assets = Asset::with('assignedTo', 'location')->find($asset_ids);
@@ -1278,9 +1272,8 @@ class AssetsController extends Controller
 
     public function audit($id)
     {
-        $settings = Setting::getSettings();
         $this->authorize('audit', Asset::class);
-        $dt = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
+        $dt = Carbon::now()->addMonths(app('Settings')->audit_interval)->toDateString();
         $asset = Asset::findOrFail($id);
         return view('hardware/audit')->with('asset', $asset)->with('next_audit_date', $dt)->with('locations_list');
     }

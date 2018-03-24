@@ -7,8 +7,7 @@ class AlertRecipient extends Recipient{
 
     public function __construct()
     {
-       $settings = Setting::getSettings();
-       $this->email = $settings->alert_email;
+       $this->email = app('Settings')->alert_email;
     }
 
 }

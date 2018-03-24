@@ -146,8 +146,8 @@ class Accessory extends SnipeModel
 
         if ($this->category->eula_text) {
             return $Parsedown->text(e($this->category->eula_text));
-        } elseif ((Setting::getSettings()->default_eula_text) && ($this->category->use_default_eula=='1')) {
-            return $Parsedown->text(e(Setting::getSettings()->default_eula_text));
+        } elseif ((app('Settings')->default_eula_text) && ($this->category->use_default_eula=='1')) {
+            return $Parsedown->text(e(app('Settings')->default_eula_text));
         }
             return null;
     }

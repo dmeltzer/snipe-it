@@ -116,8 +116,8 @@ class Category extends SnipeModel
 
         if ($this->eula_text) {
             return $Parsedown->text(e($this->eula_text));
-        } elseif ((Setting::getSettings()->default_eula_text) && ($this->use_default_eula=='1')) {
-            return $Parsedown->text(e(Setting::getSettings()->default_eula_text));
+        } elseif ((app('Settings')->default_eula_text) && ($this->use_default_eula=='1')) {
+            return $Parsedown->text(e(app('Settings')->default_eula_text));
         } else {
             return null;
         }

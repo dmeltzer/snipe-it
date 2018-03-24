@@ -42,9 +42,8 @@ class AssetRequest extends Request
             "assigned_location"   => 'sometimes:required_without_all:assigned_user,assigned_asset',
         ];
 
-        $settings = \App\Models\Setting::getSettings();
 
-        $rules['asset_tag'] = ($settings->auto_increment_assets == '1') ? 'max:255' : 'required';
+        $rules['asset_tag'] = (app('Settings')->auto_increment_assets == '1') ? 'max:255' : 'required';
 
         $model = AssetModel::find($this->request->get('model_id'));
 

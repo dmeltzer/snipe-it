@@ -101,7 +101,7 @@ class RecryptFromMcrypt extends Command
             }else{
                 $mcrypter = new McryptEncrypter($legacy_key);
             }
-            $settings = Setting::getSettings();
+            $settings = app('Settings');
 
             if ($settings->ldap_pword=='') {
                 $this->comment('INFO: No LDAP password found. Skipping... ');

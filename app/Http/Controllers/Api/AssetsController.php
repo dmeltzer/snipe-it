@@ -52,11 +52,10 @@ class AssetsController extends Controller
      * @since [v4.0]
      * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request, Setting $settings)
     {
 
         $this->authorize('index', Asset::class);
-        $settings = Setting::getSettings();
 
         $allowed_columns = [
             'id',

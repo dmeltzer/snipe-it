@@ -323,7 +323,7 @@ class UserPresenter extends Presenter
             return config('app.url').'/uploads/avatars/'.$this->avatar;
         }
 
-        if ((Setting::getSettings()->load_remote=='1') && ($this->email!='')) {
+        if ((app('Settings')->load_remote=='1') && ($this->email!='')) {
             $gravatar = md5(strtolower(trim($this->email)));
             return "//gravatar.com/avatar/".$gravatar;
         }

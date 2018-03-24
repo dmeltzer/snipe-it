@@ -1,14 +1,15 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-use App\Models\AssetModel;
-use App\Models\Asset;
-use App\Http\Controllers\Controller;
 use App\Helpers\Helper;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Http\Transformers\AssetModelsTransformer;
 use App\Http\Transformers\AssetsTransformer;
 use App\Http\Transformers\SelectlistTransformer;
+use App\Models\Asset;
+use App\Models\AssetModel;
+use App\Models\Setting;
+use Illuminate\Http\Request;
 
 
 /**
@@ -196,7 +197,7 @@ class AssetModelsController extends Controller
      * @see \App\Http\Transformers\SelectlistTransformer
      *
      */
-    public function selectlist(Request $request)
+    public function selectlist(Request $request, Setting $settings)
     {
 
         $assetmodels = AssetModel::select([
@@ -207,8 +208,6 @@ class AssetModelsController extends Controller
             'models.manufacturer_id',
             'models.category_id',
         ])->with('manufacturer','category');
-
-        $settings = \App\Models\Setting::getSettings();
 
         if ($request->has('search')) {
             $assetmodels = $assetmodels->SearchByManufacturerOrCat($request->input('search'));

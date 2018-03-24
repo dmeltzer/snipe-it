@@ -58,7 +58,7 @@ class CheckoutLicenseNotification extends Notification
             return $notifyBy;
         }
 
-        if (Setting::getSettings()->slack_endpoint!='') {
+        if (app('Settings')->slack_endpoint) {
             $notifyBy[] = 'slack';
         }
 

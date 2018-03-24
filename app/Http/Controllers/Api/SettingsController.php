@@ -19,7 +19,7 @@ class SettingsController extends Controller
     public function ldaptest()
     {
 
-        if (Setting::getSettings()->ldap_enabled!='1') {
+        if (app('Settings')->ldap_enabled!='1') {
             \Log::debug('LDAP is not enabled cannot test.');
             return response()->json(['message' => 'LDAP is not enabled, cannot test.'], 400);
         }
@@ -48,7 +48,7 @@ class SettingsController extends Controller
     public function ldaptestlogin(Request $request)
     {
 
-        if (Setting::getSettings()->ldap_enabled!='1') {
+        if (app('Settings')->ldap_enabled!='1') {
             \Log::debug('LDAP is not enabled. Cannot test.');
             return response()->json(['message' => 'LDAP is not enabled, cannot test.'], 400);
         }
@@ -65,7 +65,6 @@ class SettingsController extends Controller
             $validation_errors = implode(' ',$validator->errors()->all());
             return response()->json(['message' => $validator->errors()->all()], 400);
         }
-        
 
         \Log::debug('Preparing to test LDAP login');
         try {
@@ -103,7 +102,7 @@ class SettingsController extends Controller
     public function slacktest()
     {
 
-        if ($settings = Setting::getSettings()->slack_channel=='') {
+        if ($settings = app('Settings')->slack_channel=='') {
             \Log::debug('Slack is not enabled. Cannot test.');
             return response()->json(['message' => 'Slack is not enabled, cannot test.'], 400);
         }
@@ -111,7 +110,7 @@ class SettingsController extends Controller
         \Log::debug('Preparing to test slack connection');
 
         try {
-            Notification::send($settings = Setting::getSettings(), new SlackTest());
+            Notification::send($settings = app('Settings'), new SlackTest());
             return response()->json(['message' => 'Success'], 200);
         } catch (\Exception $e) {
             \Log::debug('Slack connection failed');
@@ -134,7 +133,7 @@ class SettingsController extends Controller
         if (!config('app.lock_passwords')) {
             try {
                 Notification::send(Setting::first(), new MailTest());
-                
+
                 /*Mail::send('emails.test', [], function ($m) {
                     $m->to(config('mail.reply_to.address'), config('mail.reply_to.name'));
                     $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));

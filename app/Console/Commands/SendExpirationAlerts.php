@@ -41,11 +41,11 @@ class SendExpirationAlerts extends Command
      *
      * @return mixed
      */
-    public function fire()
+    public function fire(Setting $settings)
     {
 
         // Expiring Assets
-        $expiring_assets = Asset::getExpiringWarrantee(Setting::getSettings()->alert_interval);
+        $expiring_assets = Asset::getExpiringWarrantee($settings->alert_interval);
         $this->info(count($expiring_assets).' expiring assets');
 
         $asset_data['count'] =  count($expiring_assets);
@@ -73,7 +73,7 @@ class SendExpirationAlerts extends Command
         }
 
         // Expiring licenses
-        $expiring_licenses = License::getExpiringLicenses(Setting::getSettings()->alert_interval);
+        $expiring_licenses = License::getExpiringLicenses($settings->alert_interval);
         $this->info(count($expiring_licenses).' expiring licenses');
 
 
@@ -96,13 +96,13 @@ class SendExpirationAlerts extends Command
                 $license_data['email_content'] .= '</tr>';
         }
 
-        if ((Setting::getSettings()->alert_email!='')  && (Setting::getSettings()->alerts_enabled==1)) {
+        if (($settings->alert_email!='')  && ($settings->alerts_enabled==1)) {
 
 
             if (count($expiring_assets) > 0) {
-                $this->info('Report sent to '.Setting::getSettings()->alert_email);
+                $this->info('Report sent to '.$settings->alert_email);
                 \Mail::send('emails.expiring-assets-report', $asset_data, function ($m) {
-                    $m->to(explode(',', Setting::getSettings()->alert_email), Setting::getSettings()->site_name);
+                    $m->to(explode(',', $settings->alert_email), $settings->site_name);
                     $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
                     $m->subject(trans('mail.Expiring_Assets_Report'));
                 });
@@ -110,9 +110,9 @@ class SendExpirationAlerts extends Command
             }
 
             if (count($expiring_licenses) > 0) {
-                $this->info('Report sent to '.Setting::getSettings()->alert_email);
+                $this->info('Report sent to '.$settings->alert_email);
                 \Mail::send('emails.expiring-licenses-report', $license_data, function ($m) {
-                    $m->to(explode(',', Setting::getSettings()->alert_email), Setting::getSettings()->site_name);
+                    $m->to(explode(',', $settings->alert_email), $settings->site_name);
                     $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
                     $m->subject(trans('mail.Expiring_Licenses_Report'));
                 });
@@ -122,9 +122,9 @@ class SendExpirationAlerts extends Command
 
         } else {
 
-            if (Setting::getSettings()->alert_email=='') {
+            if ($settings->alert_email=='') {
                 echo "Could not send email. No alert email configured in settings. \n";
-            } elseif (Setting::getSettings()->alerts_enabled!=1) {
+            } elseif ($settings->alerts_enabled!=1) {
                 echo "Alerts are disabled in the settings. No mail will be sent. \n";
             }
 

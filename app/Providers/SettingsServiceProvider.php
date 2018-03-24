@@ -31,7 +31,7 @@ class SettingsServiceProvider extends ServiceProvider
 
         // Share common setting variables with all views.
         view()->composer('*', function ($view) {
-            $view->with('snipeSettings', \App\Models\Setting::getSettings());
+            $view->with('snipeSettings', app('Settings'));
         });
 
 

@@ -2,19 +2,20 @@
 namespace App\Providers;
 
 
+use App\Models\Accessory;
+use App\Models\Asset;
+use App\Models\Component;
+use App\Models\Consumable;
+use App\Models\License;
+use App\Models\Setting;
+use App\Observers\AccessoryObserver;
+use App\Observers\AssetObserver;
+use App\Observers\ComponentObserver;
+use App\Observers\ConsumableObserver;
+use App\Observers\LicenseObserver;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Log;
-use Illuminate\Support\Facades\Schema;
-use App\Observers\AssetObserver;
-use App\Observers\LicenseObserver;
-use App\Observers\AccessoryObserver;
-use App\Observers\ConsumableObserver;
-use App\Observers\ComponentObserver;
-use App\Models\Asset;
-use App\Models\License;
-use App\Models\Accessory;
-use App\Models\Consumable;
-use App\Models\Component;
 
 
 /**
@@ -62,5 +63,10 @@ class AppServiceProvider extends ServiceProvider
         foreach ($monolog->getHandlers() as $handler) {
             $handler->setLevel($log_level);
         }
+
+        $this->app->singleton(Setting::class, function($app) {
+            return Setting::getSettings();
+        });
+        $this->app->alias(Setting::class, 'Settings');
     }
 }

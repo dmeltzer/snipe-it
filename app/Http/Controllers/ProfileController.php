@@ -52,7 +52,7 @@ class ProfileController extends Controller
         $user->gravatar   = Input::get('gravatar');
         $user->locale = Input::get('locale');
 
-        if ((Gate::allows('self.two_factor')) && ((Setting::getSettings()->two_factor_enabled=='1') && (!config('app.lock_passwords')))) {
+        if ((Gate::allows('self.two_factor')) && ((app('Settings')->two_factor_enabled=='1') && (!config('app.lock_passwords')))) {
             $user->two_factor_optin = Input::get('two_factor_optin', '0');
         }
         

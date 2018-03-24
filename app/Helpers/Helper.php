@@ -470,7 +470,7 @@ class Helper
 
         foreach ($consumables as $consumable) {
             $avail = $consumable->qty - $consumable->consumable_assignment_count;  //$consumable->numRemaining();
-            if ($avail < ($consumable->min_amt) + \App\Models\Setting::getSettings()->alert_threshold) {
+            if ($avail < ($consumable->min_amt) + app('Settings')->alert_threshold) {
                 if ($consumable->qty > 0) {
                     $percent = number_format((($avail / $consumable->qty) * 100), 0);
                 } else {
@@ -491,7 +491,7 @@ class Helper
 
         foreach ($accessories as $accessory) {
             $avail = $accessory->qty - $accessory->users_count;
-            if ($avail < ($accessory->min_amt) + \App\Models\Setting::getSettings()->alert_threshold) {
+            if ($avail < ($accessory->min_amt) + app('Settings')->alert_threshold) {
 
                 if ($accessory->qty > 0) {
                     $percent = number_format((($avail / $accessory->qty) * 100), 0);
@@ -512,7 +512,7 @@ class Helper
 
         foreach ($components as $component) {
             $avail = $component->qty - $component->assets_count;
-            if ($avail < ($component->min_amt) + \App\Models\Setting::getSettings()->alert_threshold) {
+            if ($avail < ($component->min_amt) + app('Settings')->alert_threshold) {
                 if ($component->qty > 0) {
                     $percent = number_format((($avail / $component->qty) * 100), 0);
                 } else {
@@ -712,7 +712,7 @@ class Helper
             return null;
         }
 
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
         $tmp_date = new \Carbon($date);
 
         if ($type == 'datetime') {

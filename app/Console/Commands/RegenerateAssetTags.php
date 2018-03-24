@@ -39,18 +39,16 @@ class RegenerateAssetTags extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(Setting $settings)
     {
-
         if ($this->confirm('This will regenerate all of the asset tags within your system. This action is data-destructive and should be used with caution. Do you wish to continue?'))
         {
 
             $output['info'] = [];
             $output['warn'] = [];
             $output['error'] = [];
-            $settings = Setting::getSettings();
 
-            $start_tag = ($this->option('start')) ? $this->option('start') : (($settings->next_auto_tag_base) ? Setting::getSettings()->next_auto_tag_base : 1) ;
+            $start_tag = ($this->option('start')) ? $this->option('start') : (($settings->next_auto_tag_base) ? $settings->next_auto_tag_base : 1) ;
 
             $this->info('Starting at '.$start_tag);
 
@@ -64,7 +62,7 @@ class RegenerateAssetTags extends Command
             }
 
             foreach ($total_assets as $asset) {
-                
+
                 $start_tag++;
                 $output['info'][] = 'Asset tag:'.$asset->asset_tag;
                 $asset->asset_tag = $settings->auto_increment_prefix.$settings->auto_increment_prefix.$start_tag;

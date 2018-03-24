@@ -13,7 +13,7 @@ class ActionlogsTransformer
     public function transformActionlogs (Collection $actionlogs, $total)
     {
         $array = array();
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
         foreach ($actionlogs as $actionlog) {
             $array[] = self::transformActionlog($actionlog, $settings);
         }

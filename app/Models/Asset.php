@@ -450,7 +450,7 @@ class Asset extends Depreciable
    */
     public static function autoincrement_asset()
     {
-        $settings = \App\Models\Setting::getSettings();
+        $settings = app('Settings');
 
 
         if ($settings->auto_increment_assets == '1') {
@@ -523,7 +523,7 @@ class Asset extends Depreciable
         if ($this->model->category->eula_text) {
             return $Parsedown->text(e($this->model->category->eula_text));
         } elseif ($this->model->category->use_default_eula == '1') {
-            return $Parsedown->text(e(Setting::getSettings()->default_eula_text));
+            return $Parsedown->text(e(app('Settings')->default_eula_text));
         } else {
             return false;
         }

@@ -36,7 +36,7 @@ class AuditNotification extends Notification
     public function via($notifiable)
     {
         $notifyBy = [];
-        if (Setting::getSettings()->slack_endpoint) {
+        if (app('Settings')->slack_endpoint) {
             $notifyBy[] = 'slack';
         }
 

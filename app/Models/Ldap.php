@@ -21,11 +21,11 @@ class Ldap extends Model
 
     public static function connectToLdap()
     {
-
-        $ldap_host    = Setting::getSettings()->ldap_server;
-        $ldap_version = Setting::getSettings()->ldap_version;
-        $ldap_server_cert_ignore = Setting::getSettings()->ldap_server_cert_ignore;
-        $ldap_use_tls = Setting::getSettings()->ldap_tls;
+        $settings = app('Settings');
+        $ldap_host    = $settings>ldap_server;
+        $ldap_version = $settings>ldap_version;
+        $ldap_server_cert_ignore = $settings>ldap_server_cert_ignore;
+        $ldap_use_tls = $settings>ldap_tls;
 
 
         // If we are ignoring the SSL cert we need to setup the environment variable
@@ -73,7 +73,7 @@ class Ldap extends Model
      */
     static function findAndBindUserLdap($username, $password)
     {
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
         $connection = Ldap::connectToLdap();
         $ldap_username_field     = $settings->ldap_username_field;
         $baseDn      = $settings->ldap_basedn;
@@ -130,12 +130,11 @@ class Ldap extends Model
      */
     static function bindAdminToLdap($connection)
     {
-
-        $ldap_username     = Setting::getSettings()->ldap_uname;
+        $ldap_username     = app('Settings')->ldap_uname;
 
         // Lets return some nicer messages for users who donked their app key, and disable LDAP
         try {
-            $ldap_pass    = \Crypt::decrypt(Setting::getSettings()->ldap_pword);
+            $ldap_pass    = \Crypt::decrypt(app('Settings')->ldap_pword);
         } catch (Exception $e) {
 
             throw new Exception('Your app key has changed! Could not decrypt LDAP password using your current app key, so LDAP authentication has been disabled. Login with a local account, update the LDAP password and re-enable it in Admin > Settings.');
@@ -160,12 +159,13 @@ class Ldap extends Model
      */
     static function parseAndMapLdapAttributes($ldapatttibutes)
     {
+        $settings = app('Settings');
         //Get LDAP attribute config
-        $ldap_result_username = Setting::getSettings()->ldap_username_field;
-        $ldap_result_emp_num = Setting::getSettings()->ldap_emp_num;
-        $ldap_result_last_name = Setting::getSettings()->ldap_lname_field;
-        $ldap_result_first_name = Setting::getSettings()->ldap_fname_field;
-        $ldap_result_email = Setting::getSettings()->ldap_email;
+        $ldap_result_username = $settings->ldap_username_field;
+        $ldap_result_emp_num = $settings->ldap_emp_num;
+        $ldap_result_last_name = $settings->ldap_lname_field;
+        $ldap_result_first_name = $settings->ldap_fname_field;
+        $ldap_result_email = $settings->ldap_email;
 
         // Get LDAP user data
         $item = array();
@@ -201,7 +201,7 @@ class Ldap extends Model
             $user->username = $item["username"];
             $user->email = $item["email"];
 
-            if (Setting::getSettings()->ldap_pw_sync=='1') {
+            if (app('Settings')->ldap_pw_sync=='1') {
                 $user->password = bcrypt(Input::get("password"));
             } else {
                 $pass = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 25);
@@ -240,9 +240,9 @@ class Ldap extends Model
         $ldap_bind = Ldap::bindAdminToLdap($ldapconn);
         // Default to global base DN if nothing else is provided.
         if (is_null($base_dn)) {
-            $base_dn = Setting::getSettings()->ldap_basedn;
+            $base_dn = app('Settings')->ldap_basedn;
         }
-        $filter = Setting::getSettings()->ldap_filter;
+        $filter = app('Settings')->ldap_filter;
 
         // Set up LDAP pagination for very large databases
         $page_size = 500;

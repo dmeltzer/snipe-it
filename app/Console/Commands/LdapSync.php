@@ -40,18 +40,18 @@ class LdapSync extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(Setting $settings)
     {
         ini_set('max_execution_time', 600); //600 seconds = 10 minutes
         ini_set('memory_limit', '500M');
 
-        $ldap_result_username = Setting::getSettings()->ldap_username_field;
-        $ldap_result_last_name = Setting::getSettings()->ldap_lname_field;
-        $ldap_result_first_name = Setting::getSettings()->ldap_fname_field;
+        $ldap_result_username = $settings->ldap_username_field;
+        $ldap_result_last_name = $settings->ldap_lname_field;
+        $ldap_result_first_name = $settings->ldap_fname_field;
 
-        $ldap_result_active_flag = Setting::getSettings()->ldap_active_flag_field;
-        $ldap_result_emp_num = Setting::getSettings()->ldap_emp_num;
-        $ldap_result_email = Setting::getSettings()->ldap_email;
+        $ldap_result_active_flag = $settings->ldap_active_flag_field;
+        $ldap_result_emp_num = $settings->ldap_emp_num;
+        $ldap_result_email = $settings->ldap_email;
 
         try {
             $ldapconn = Ldap::connectToLdap();
@@ -67,10 +67,10 @@ class LdapSync extends Command
 
         $summary = array();
 
-        try {    
+        try {
             if ($this->option('base_dn') != '') {
                 $search_base = $this->option('base_dn');
-                LOG::debug('Importing users from specified base DN: \"'.$search_base.'\".');                
+                LOG::debug('Importing users from specified base DN: \"'.$search_base.'\".');
             } else {
                 $search_base = null;
             }
@@ -106,7 +106,7 @@ class LdapSync extends Command
             // Retrieve locations with a mapped OU, and sort them from the shallowest to deepest OU (see #3993)
             $ldap_ou_locations = Location::where('ldap_ou', '!=', '')->get()->toArray();
             $ldap_ou_lengths = array();
-            
+
             foreach ($ldap_ou_locations as $location) {
                 $ldap_ou_lengths[] = strlen($location["ldap_ou"]);
             }

@@ -38,7 +38,7 @@ trait Loggable
      */
     public function logCheckout($note, $target /* What are we checking out to? */)
     {
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
         $log = new Actionlog;
         $log = $this->determineLogItemType($log);
         $log->user_id = Auth::user()->id;
@@ -127,7 +127,7 @@ trait Loggable
      */
     public function logCheckin($target, $note)
     {
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
         $log = new Actionlog;
         $log->target_type = get_class($target);
         $log->target_id = $target->id;
@@ -209,7 +209,7 @@ trait Loggable
             'location' => ($location) ? $location->name : '',
             'note' => $note
         ];
-        Setting::getSettings()->notify(new AuditNotification($params));
+        app('Settings')->notify(new AuditNotification($params));
 
         return $log;
     }

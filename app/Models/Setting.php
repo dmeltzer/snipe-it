@@ -84,7 +84,7 @@ class Setting extends Model
     public static function getDefaultEula()
     {
         $Parsedown = new \Parsedown();
-        if (Setting::getSettings()->default_eula_text) {
+        if (app('Settings')->default_eula_text) {
             return $Parsedown->text(e(Setting::getSettings()->default_eula_text));
         }
         return null;
@@ -121,7 +121,7 @@ class Setting extends Model
      */
     public function show_custom_css()
     {
-        $custom_css = Setting::getSettings()->custom_css;
+        $custom_css = app('Settings')->custom_css;
         $custom_css = e($custom_css);
         // Needed for modifying the bootstrap nav :(
         $custom_css = str_ireplace('script', 'SCRIPTS-NOT-ALLOWED-HERE', $custom_css);
@@ -194,7 +194,7 @@ class Setting extends Model
     public static function passwordComplexityRulesSaving($action = 'update')
     {
         $security_rules = '';
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
 
         // Check if they have uncommon password enforcement selected in settings
         if ($settings->pwd_secure_uncommon == 1) {

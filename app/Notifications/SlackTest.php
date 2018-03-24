@@ -53,7 +53,7 @@ class SlackTest extends Notification
      */
     public function toSlack($notifiable)
     {
-        $settings = Setting::getSettings();
+        $settings = app('Settings');
         return (new SlackMessage)
             ->from($settings->slack_botname, ':heart:')
             ->to($settings->slack_channel)
