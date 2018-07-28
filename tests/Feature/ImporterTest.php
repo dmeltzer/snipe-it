@@ -1,29 +1,30 @@
 <?php
+
+namespace Tests\Feature;
+
 use App\Importer\AccessoryImporter;
 use App\Importer\AssetImporter;
 use App\Importer\ConsumableImporter;
 use App\Importer\LicenseImporter;
 use App\Importer\UserImporter;
 use App\Models\Accessory;
-use App\Models\Asset;
 use App\Models\AssetModel;
-use App\Models\Category;
+use App\Models\Consumable;
 use App\Models\CustomField;
+use App\Models\CustomFieldset;
+use App\Models\License;
+use App\Models\LicenseSeat;
 use App\Models\Location;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Tests\DatabaseTestCase;
 
-class ImporterTest extends BaseTest
+class ImporterTest extends DatabaseTestCase
 {
     /**
-    * @var \UnitTester
-    */
-    protected $tester;
-
+     * Test Importing asset with custom field values
+     * @covers \App\Importer\AssetImporter::handle()
+     */
     public function testDefaultImportAssetWithCustomFields()
     {
         $this->signIn();
@@ -35,50 +36,50 @@ EOT;
         $this->initializeCustomFields();
         $this->import(new AssetImporter($csv));
 
-        $this->tester->seeRecord('users', [
+        $this->assertDatabaseHas('users', [
             'first_name' => 'Bonnie',
             'last_name' => 'Nelson',
             'email' => 'bnelson0@cdbaby.com',
         ]);
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'quam'
         ]);
 
-        $this->tester->seeRecord('models', [
+        $this->assertDatabaseHas('models', [
             'name' => 'massa id',
             'model_number' => 6377018600094472
         ]);
 
-        $this->tester->seeRecord('manufacturers', [
+        $this->assertDatabaseHas('manufacturers', [
             'name' => 'Linkbridge'
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'Daping'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Alpha'
         ]);
 
-        $this->tester->seeRecord('status_labels', [
+        $this->assertDatabaseHas('status_labels', [
             'name' => 'Undeployable'
         ]);
 
-        $this->tester->seeRecord('suppliers', [
+        $this->assertDatabaseHas('suppliers', [
             'name' => 'Blogspan'
         ]);
 
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'name' => 'eget nunc donec quis',
             'serial' => '27aa8378-b0f4-4289-84a4-405da95c6147',
             'asset_tag' => '970882174-8',
             'notes' => "Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est.",
-            'purchase_date' => '2016-04-05 00:00:01',
-            'purchase_cost' => 133289.59
-,            'warranty_months' => 14,
+            'purchase_date' => '2016-04-05',
+            'purchase_cost' => 133289.59,
+            'warranty_months' => 14,
             '_snipeit_weight_2' => 35
-            ]);
+        ]);
     }
 
     public function testImportCheckoutToLocation()
@@ -102,28 +103,28 @@ EOT;
 
         $user = User::where('username', 'bnelson0')->firstOrFail();
 
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'asset_tag' => '970882174-8',
             'assigned_type' => User::class,
             'assigned_to' => $user->id
         ]);
 
         $user = User::where('username', 'mgibson2')->firstOrFail();
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'asset_tag' => '710141467-2',
             'assigned_type' => User::class,
             'assigned_to' => $user->id
         ]);
 
         $location = Location::where('name', 'Planet Earth')->firstOrFail();
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'asset_tag' => '998233705-X',
             'assigned_type' => Location::class,
             'assigned_to' => $location->id
         ]);
 
         $location = Location::where('name', 'Daping')->firstOrFail();
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'asset_tag' => '927820758-6',
             'assigned_type' => Location::class,
             'assigned_to' => $location->id
@@ -136,64 +137,64 @@ EOT;
         $this->signIn();
         $csv = <<<'EOT'
 Name,Email,Username,item Name,Category,Model name,Manufacturer,Model Number,Serial,Asset Tag,Location,Notes,Purchase Date,Purchase Cost,Company,Status,Warranty,Supplier,weight
-Bonnie Nelson,bnelson0@cdbaby.com,bnelson0,eget nunc donec quis,quam,massa id,Linkbridge,6377018600094472,27aa8378-b0f4-4289-84a4-405da95c6147,970882174-8,Daping,"Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est.",2016-04-05,133289.59,Alpha,Undeployable,14,Blogspan,95
+Bonnie Nelson,bnelson0@cdbaby.com,bnelson0,eget nunc donec quis,quam,massa id,Linkbridge,6377018600094472,27aa8378-b0f4-4289-84a4-405da95c6147,970882174-15,Daping,"Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est.",2016-04-05,133289.59,Alpha,Undeployable,14,Blogspan,95
 EOT;
 
         $this->initializeCustomFields();
         $this->import(new AssetImporter($csv));
 
         $updatedCSV = <<<'EOT'
-item Name,Category,Model name,Manufacturer,Model Number,Serial,Asset Tag,Location,Notes,Purchase Date,Purchase Cost,Company,Status,Warranty,Supplier
-A new name,some other category,Another Model,Linkbridge 32,356,67433477,970882174-8,New Location,I have no notes,2018-04-05,25.59,Another Company,Ready To Go,18,Not Creative
+item Name,Category,Model name,Manufacturer,Model Number,Serial,Asset Tag,Location,Notes,Purchase Date,Purchase Cost,Company,Status,Warranty,Supplier,weight
+A new name,some other category,Another Model,Linkbridge 32,356,67433477,970882174-15,New Location,I have no notes,2018-04-05,25.59,Another Company,Ready To Go,18,Not Creative,105
 EOT;
         $importer = new AssetImporter($updatedCSV);
         $importer->setUserId(1)
-             ->setUpdating(true)
-             ->setUsernameFormat('firstname.lastname')
-             ->import();
+            ->setUpdating(true)
+            ->setUsernameFormat('firstname.lastname')
+            ->import();
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'some other category'
         ]);
 
-        $this->tester->seeRecord('models', [
+        $this->assertDatabaseHas('models', [
             'name' => 'Another Model',
             'model_number' => 356
         ]);
 
-        $this->tester->seeRecord('manufacturers', [
+        $this->assertDatabaseHas('manufacturers', [
             'name' => 'Linkbridge 32'
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'New Location'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Another Company'
         ]);
 
-        $this->tester->seeRecord('status_labels', [
+        $this->assertDatabaseHas('status_labels', [
             'name' => 'Ready To Go'
         ]);
 
-        $this->tester->seeRecord('suppliers', [
+        $this->assertDatabaseHas('suppliers', [
             'name' => 'Not Creative'
         ]);
 
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'name' => 'A new name',
             'serial' => '67433477',
-            'asset_tag' => '970882174-8',
+            'asset_tag' => '970882174-15',
             'notes' => "I have no notes",
-            'purchase_date' => '2018-04-05 00:00:01',
-            'purchase_cost' => 25.59,
+            'purchase_date' => '2018-04-05',
+            'purchase_cost' => '25.59',
             'warranty_months' => 18,
-            '_snipeit_weight_2' => 95
+            '_snipeit_weight_2' => 105
         ]);
     }
 
-   public function testAssetModelNumber4359()
+    public function testAssetModelNumber4359()
     {
         // As per bug #4359
         // 1) Create model with blank model # and custom field.
@@ -206,28 +207,28 @@ Bonnie Nelson,bnelson0@cdbaby.com,bnelson0,eget nunc donec quis,quam,massa id,Li
 EOT;
 
         // Need to do this manually...
-            $customField = factory(App\Models\CustomField::class)->create(['name' => 'Weight']);
-            $customFieldSet = factory(App\Models\CustomFieldset::class)->create(['name' => 'Default']);
-            $customFieldSet->fields()->attach($customField, [
-                'required' => false,
-                'order' => 'asc']);
+        $customField = CustomField::where('name', 'Weight')->first() ?? factory(CustomField::class)->create(['name' => 'Weight']);
+        $customFieldSet = CustomFieldSet::where('name', 'Default')->first() ?? factory(CustomFieldset::class)->create(['name' => 'Default']);
+        $customFieldSet->fields()->attach($customField, [
+            'required' => false,
+            'order' => 'asc']);
 
-            factory(App\Models\Category::class)->states('asset-laptop-category')->create([
-                'name' => 'quam'
-            ]);
+        factory(\App\Models\Category::class)->states('asset-laptop-category')->create([
+            'name' => 'quam'
+        ]);
 
-            factory(App\Models\Manufacturer::class)->states('apple')->create([
-                'name' => 'Linkbridge'
-            ]);
+        factory(\App\Models\Manufacturer::class)->states('apple')->create([
+            'name' => 'Linkbridge'
+        ]);
 
 
-            $am = factory(App\Models\AssetModel::class)->create([
-                'name' => 'massa id',
-                'fieldset_id' => $customFieldSet->id,
-                'category_id' => 1,
-                'manufacturer_id' => 1,
-                'model_number' => null
-            ]);
+        $am = factory(\App\Models\AssetModel::class)->create([
+            'name' => 'massa id',
+            'fieldset_id' => $customFieldSet->id,
+            'category_id' => 1,
+            'manufacturer_id' => 1,
+            'model_number' => null
+        ]);
 
         $this->import(new AssetImporter($csv));
         $updatedCSV = <<<'EOT'
@@ -236,28 +237,14 @@ Serial,Asset Tag,weight
 EOT;
         $importer = new AssetImporter($updatedCSV);
         $importer->setUserId(1)
-             ->setUpdating(true)
-             ->setUsernameFormat('firstname.lastname')
-             ->import();
+            ->setUpdating(true)
+            ->setUsernameFormat('firstname.lastname')
+            ->import();
 
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'asset_tag' => '970882174-8',
             '_snipeit_weight_2' => 115
         ]);
-    }
-
-    public function initializeCustomFields()
-    {
-            $customField = factory(App\Models\CustomField::class)->create(['name' => 'Weight']);
-            $customFieldSet = factory(App\Models\CustomFieldset::class)->create(['name' => 'Default']);
-            $customFieldSet->fields()->attach($customField, [
-                'required' => false,
-                'order' => 'asc']);
-
-            $am = factory(App\Models\AssetModel::class)->create([
-                'name' => 'massa id',
-                'fieldset_id' => $customFieldSet->id
-            ]);
     }
 
     public function testCustomMappingImport()
@@ -281,53 +268,53 @@ EOT;
 
         $this->import(new AssetImporter($csv), $customFieldMap);
         // Did we create a user?
-        $this->tester->seeRecord('users', [
+        $this->assertDatabaseHas('users', [
             'first_name' => 'Bonnie',
             'last_name' => 'Nelson',
             'email' => 'bnelson0@cdbaby.com',
         ]);
         // Grab the user record for use in asserting assigned_to
-        $createdUser = $this->tester->grabRecord('users', [
+        $createdUser = User::where([
             'first_name' => 'Bonnie',
             'last_name' => 'Nelson',
             'email' => 'bnelson0@cdbaby.com',
-        ]);
+        ])->first();
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'quam'
         ]);
 
-        $this->tester->seeRecord('models', [
+        $this->assertDatabaseHas('models', [
             'name' => 'massa id',
             'model_number' => 6377018600094472
         ]);
 
-        $this->tester->seeRecord('manufacturers', [
+        $this->assertDatabaseHas('manufacturers', [
             'name' => 'Linkbridge'
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'Daping'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Alpha'
         ]);
 
-        $this->tester->seeRecord('status_labels', [
+        $this->assertDatabaseHas('status_labels', [
             'name' => 'Undeployable'
         ]);
 
-        $this->tester->seeRecord('suppliers', [
+        $this->assertDatabaseHas('suppliers', [
             'name' => 'Blogspan'
         ]);
 
-        $this->tester->seeRecord('assets', [
+        $this->assertDatabaseHas('assets', [
             'name' => 'eget nunc donec quis',
             'serial' => '27aa8378-b0f4-4289-84a4-405da95c6147',
             'asset_tag' => '970882174-8',
             'notes' => "Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est.",
-            'purchase_date' => '2016-04-05 00:00:01',
+            'purchase_date' => '2016-04-05',
             'purchase_cost' => 133289.59,
             'warranty_months' => 14,
             'assigned_to' => $createdUser['id'],
@@ -342,23 +329,23 @@ Item Name,Purchase Date,Purchase Cost,Location,Company,Order Number,Category,Req
 Walter Carter,09/01/2006,,metus. Vivamus,Macromedia,J935H60W,Customers,False,278
 EOT;
         $this->import(new AccessoryImporter($csv));
-        $this->tester->seeRecord('accessories', [
+        $this->assertDatabaseHas('accessories', [
             'name' => 'Walter Carter',
-            'purchase_date' => '2006-09-01 00:00:01',
+            'purchase_date' => '2006-09-01',
             'order_number' => 'J935H60W',
             'requestable' => 0,
             'qty' => 278
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'metus. Vivamus'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Macromedia'
         ]);
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'Customers'
         ]);
     }
@@ -370,7 +357,7 @@ Item Name,Purchase Date,Purchase Cost,Location,Company,Order Number,Category,Req
 Walter Carter,09/01/2006,,metus. Vivamus,Macromedia,J935H60W,Customers,False,278
 EOT;
         $this->import(new AccessoryImporter($csv));
-        $this->tester->seeNumRecords(1, 'accessories');
+        $this->assertEquals(1, Accessory::count());
 
 
         $updatedCSV = <<<'EOT'
@@ -379,14 +366,14 @@ Walter Carter,09/01/2015,350,metus. Vivamus,Macromedia,35GGH,Customers,True,12
 EOT;
         $importer = new AccessoryImporter($updatedCSV);
         $importer->setUserId(1)
-             ->setUpdating(true)
-             ->import();
+            ->setUpdating(true)
+            ->import();
         // At this point we should still only have one record.
-        $this->tester->seeNumRecords(1, 'accessories');
+        $this->assertEquals(1, Accessory::count());
         // But instead these.
-        $this->tester->seeRecord('accessories', [
+        $this->assertDatabaseHas('accessories', [
             'name' => 'Walter Carter',
-            'purchase_date' => '2015-09-01 00:00:01',
+            'purchase_date' => '2015-09-01',
             'order_number' => '35GGH',
             'requestable' => 1,
             'qty' => 12
@@ -413,27 +400,30 @@ EOT;
         ];
         $this->import(new AccessoryImporter($csv), $customFieldMap);
         // dd($this->tester->grabRecord('accessories'));
-        $this->tester->seeRecord('accessories', [
+        $this->assertDatabaseHas('accessories', [
             'name' => 'Walter Carter',
-            'purchase_date' => '2006-09-01 00:00:01',
+            'purchase_date' => '2006-09-01',
             'order_number' => 'J935H60W',
             'requestable' => 0,
             'qty' => 278
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'metus. Vivamus'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Macromedia'
         ]);
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'Customers'
         ]);
     }
 
+    /**
+     *
+     */
     public function testDefaultConsumableImport()
     {
         $csv = <<<'EOT'
@@ -441,9 +431,9 @@ Item Name,Purchase Date,Purchase Cost,Location,Company,Order Number,Category,Req
 eget,01/03/2011,$85.91,mauris blandit mattis.,Lycos,T295T06V,Triamterene/Hydrochlorothiazide,No,322,3305,30123
 EOT;
         $this->import(new ConsumableImporter($csv));
-        $this->tester->seeRecord('consumables', [
+        $this->assertDatabaseHas('consumables', [
             'name' => 'eget',
-            'purchase_date' => '2011-01-03 00:00:01',
+            'purchase_date' => '2011-01-03',
             'purchase_cost' => 85.91,
             'order_number' => 'T295T06V',
             'requestable' => 0,
@@ -452,15 +442,15 @@ EOT;
             'model_number' => 30123
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'mauris blandit mattis.'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Lycos'
         ]);
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'Triamterene/Hydrochlorothiazide'
         ]);
     }
@@ -472,7 +462,7 @@ Item Name,Purchase Date,Purchase Cost,Location,Company,Order Number,Category,Req
 eget,01/03/2011,85.91,mauris blandit mattis.,Lycos,T295T06V,Triamterene/Hydrochlorothiazide,No,322
 EOT;
         $this->import(new ConsumableImporter($csv));
-        $this->tester->seeNumRecords(1, 'consumables');
+        $this->assertEquals(1, Consumable::count());
 
 
         $updatedCSV = <<<'EOT'
@@ -481,14 +471,14 @@ eget,12/05/2016,35.45,mauris blandit mattis.,Lycos,3666FF,New Cat,Yes,15
 EOT;
         $importer = new ConsumableImporter($updatedCSV);
         $importer->setUserId(1)
-             ->setUpdating(true)
-             ->import();
+            ->setUpdating(true)
+            ->import();
         // At this point we should still only have one record.
-        $this->tester->seeNumRecords(1, 'consumables');
+        $this->assertEquals(1, Consumable::count());
         // But instead these.
-        $this->tester->seeRecord('consumables', [
+        $this->assertDatabaseHas('consumables', [
             'name' => 'eget',
-            'purchase_date' => '2016-12-05 00:00:01',
+            'purchase_date' => '2016-12-05',
             'purchase_cost' => 35.45,
             'order_number' => '3666FF',
             'requestable' => 1,
@@ -515,24 +505,24 @@ EOT;
             'quantity' => 'Quan'
         ];
         $this->import(new ConsumableImporter($csv), $customFieldMap);
-        $this->tester->seeRecord('consumables', [
+        $this->assertDatabaseHas('consumables', [
             'name' => 'eget',
-            'purchase_date' => '2011-01-03 00:00:01',
+            'purchase_date' => '2011-01-03',
             'purchase_cost' => 85.91,
             'order_number' => 'T295T06V',
             'requestable' => 0,
             'qty' => 322
         ]);
 
-        $this->tester->seeRecord('locations', [
+        $this->assertDatabaseHas('locations', [
             'name' => 'mauris blandit mattis.'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Lycos'
         ]);
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'Triamterene/Hydrochlorothiazide'
         ]);
     }
@@ -547,9 +537,9 @@ EOT;
         $this->import(new LicenseImporter($csv));
         // dd($this->tester->grabRecord('licenses'));
 
-        $this->tester->seeRecord('licenses', [
+        $this->assertDatabaseHas('licenses', [
             'name' => 'Argentum Malachite Athletes Foot Relief',
-            'purchase_date' => '2012-07-13 00:00:01',
+            'purchase_date' => '2012-07-13',
             'seats' => 80,
             'license_email' => 'cspencer0@gov.uk',
             'order_number' => '386436062-5',
@@ -563,23 +553,23 @@ EOT;
             'serial' => '1aa5b0eb-79c5-40b2-8943-5472a6893c3c',
         ]);
 
-        $this->tester->seeRecord('manufacturers', [
+        $this->assertDatabaseHas('manufacturers', [
             'name' => 'Beer, Leannon and Lubowitz'
         ]);
 
-        $this->tester->seeRecord('suppliers', [
+        $this->assertDatabaseHas('suppliers', [
             'name' => "Hegmann, Mohr and Cremin",
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Haag, Schmidt and Farrell'
         ]);
 
-        $this->tester->seeRecord('categories', [
+        $this->assertDatabaseHas('categories', [
             'name' => 'Graphics Software'
         ]);
 
-        $this->tester->seeNumRecords(80, 'license_seats');
+        $this->assertEquals(80, LicenseSeat::count());
     }
 
     public function testDefaultLicenseUpdate()
@@ -589,7 +579,7 @@ Name,Email,Username,Item name,serial,manufacturer,purchase date,purchase cost,pu
 Helen Anderson,cspencer0@privacy.gov.au,cspencer0,Argentum Malachite Athletes Foot Relief,1aa5b0eb-79c5-40b2-8943-5472a6893c3c,"Beer, Leannon and Lubowitz",07/13/2012,$79.66,53008,386436062-5,Cynthia Spencer,cspencer0@gov.uk,01/27/2016,false,no,80,"Haag, Schmidt and Farrell","Hegmann, Mohr and Cremin",Graphics Software,Sed ante. Vivamus tortor. Duis mattis egestas metus.
 EOT;
         $this->import(new LicenseImporter($csv));
-        $this->tester->seeNumRecords(1, 'licenses');
+        $this->assertEquals(1, License::count());
 
 
         $updatedCSV = <<<'EOT'
@@ -598,16 +588,15 @@ Argentum Malachite Athletes Foot Relief,1aa5b0eb-79c5-40b2-8943-5472a6893c3c,"Be
 EOT;
         $importer = new LicenseImporter($updatedCSV);
         $importer->setUserId(1)
-             ->setUpdating(true)
-             ->import();
+            ->setUpdating(true)
+            ->import();
         // At this point we should still only have one record.
-        $this->tester->seeNumRecords(1, 'licenses');
-        // But instead these.
+        $this->assertEquals(1, License::count());
 
-        \Log::debug($this->tester->grabRecord('licenses'));
-        $this->tester->seeRecord('licenses', [
+        // But instead these.
+        $this->assertDatabaseHas('licenses', [
             'name' => 'Argentum Malachite Athletes Foot Relief',
-            'purchase_date' => '2019-05-15 00:00:01',
+            'purchase_date' => '2019-05-15',
             'seats' => 64,
             'license_email' => 'Legendary@gov.uk',
             'order_number' => '18334',
@@ -621,7 +610,8 @@ EOT;
             'serial' => '1aa5b0eb-79c5-40b2-8943-5472a6893c3c',
         ]);
         // License seats are soft deleted
-        $this->tester->seeNumRecords(64, 'license_seats', ['deleted_at' => null]);
+        $this->assertEquals(64, LicenseSeat::whereNull('deleted_at')->count());
+
     }
 
     public function testCustomLicenseImport()
@@ -652,9 +642,9 @@ EOT;
             'category' => 'category',
         ];
         $this->import(new LicenseImporter($csv), $customFieldMap);
-        $this->tester->seeRecord('licenses', [
+        $this->assertDatabaseHas('licenses', [
             'name' => 'Argentum Malachite Athletes Foot Relief',
-            'purchase_date' => '2012-07-13 00:00:01',
+            'purchase_date' => '2012-07-13',
             'seats' => 80,
             'license_email' => 'cspencer0@gov.uk',
             'order_number' => '386436062-5',
@@ -668,19 +658,20 @@ EOT;
             'serial' => '1aa5b0eb-79c5-40b2-8943-5472a6893c3c',
         ]);
 
-        $this->tester->seeRecord('manufacturers', [
+        $this->assertDatabaseHas('manufacturers', [
             'name' => 'Beer, Leannon and Lubowitz'
         ]);
 
-        $this->tester->seeRecord('suppliers', [
+        $this->assertDatabaseHas('suppliers', [
             'name' => "Hegmann, Mohr and Cremin",
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Haag, Schmidt and Farrell'
         ]);
 
-        $this->tester->seeNumRecords(80, 'license_seats');
+        $this->assertEquals(80, LicenseSeat::count());
+
     }
 
 
@@ -696,7 +687,7 @@ Jessie,Primo,,jprimo1,Korenovsk,7-(885)578-0266,Paralegal,6284292031,Jast-Stiede
 EOT;
         $this->import(new UserImporter($csv));
 
-        $this->tester->seeRecord('users', [
+        $this->assertDatabaseHas('users', [
             'first_name' => 'Blanche',
             'last_name' => "O'Collopy",
             'email' => 'bocollopy0@livejournal.com',
@@ -706,25 +697,44 @@ EOT;
             'employee_num' => '7080919053'
         ]);
 
-        $this->tester->seeRecord('companies', [
+        $this->assertDatabaseHas('companies', [
             'name' => 'Morar-Ward'
         ]);
-
-        $this->tester->seeRecord('departments', [
+        $this->assertDatabaseHas('departments', [
             'name' => 'Management'
         ]);
-
-        Notification::assertSentTo(User::find(2), \App\Notifications\WelcomeNotification::class);
-        Notification::assertNotSentTo(User::find(3), \App\Notifications\WelcomeNotification::class);
+        Notification::assertSentTo(User::whereUsername('bocollopy0')->first(), \App\Notifications\WelcomeNotification::class);
+        Notification::assertNotSentTo(User::whereUsername('jprimo1')->first(), \App\Notifications\WelcomeNotification::class);
     }
+    /**
+     * Seed custom field models/values in the DB.
+     */
+    public function initializeCustomFields()
+    {
+        $customField = CustomField::where('name', 'Weight')->first() ?? factory(CustomField::class)->create(['name' => 'Weight']);
+        $customFieldSet = CustomFieldSet::where('name', 'Default')->first() ?? factory(CustomFieldset::class)->create(['name' => 'Default']);
+        $customFieldSet->fields()->attach($customField, [
+            'required' => false,
+            'order' => 'asc']);
+
+        $am = factory(AssetModel::class)->create([
+            'name' => 'massa id',
+            'fieldset_id' => $customFieldSet->id
+        ]);
+    }
+
+    /**
+     * @param \App\Importer\ItemImporter $importer
+     * @param array $mappings
+     */
     private function import($importer, $mappings = null)
     {
         if ($mappings) {
             $importer->setFieldMappings($mappings);
         }
         $importer->setUserId(1)
-             ->setUpdating(false)
-             ->setUsernameFormat('firstname.lastname')
-             ->import();
+            ->setUpdating(false)
+            ->setUsernameFormat('firstname.lastname')
+            ->import();
     }
 }

@@ -56,4 +56,14 @@ $factory->state(App\Models\Consumable::class, 'ink', function ($faker) {
 });
 
 
+$factory->state(App\Models\Consumable::class, 'tests', function ($faker) {
+
+    return [
+        'name' => $faker->name,
+        'category_id' => App\Models\Category::whereCategoryType('consumable')->first()->id,
+        'manufacturer_id' => App\Models\Manufacturer::first()->id,
+        'qty' => $faker->numberBetween(20,100),
+        'min_amt' => 2
+    ];
+});
 

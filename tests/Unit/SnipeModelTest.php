@@ -1,9 +1,11 @@
 <?php
 
+namespace Tests\Unit;
 
 use App\Models\SnipeModel;
+use Tests\TestCase;
 
-class SnipeModelTest extends BaseTest
+class SnipeModelTest extends TestCase
 {
     /**
      * @var \UnitTester

@@ -86,4 +86,16 @@ $factory->state(App\Models\License::class, 'office', function ($faker) {
     return $data;
 });
 
+// 5
+$factory->state(App\Models\License::class, 'tests', function ($faker) {
+    $data =  [
+        'name' => $faker->name,
+        'manufacturer_id' => App\Models\Manufacturer::first()->id,
+        'purchase_cost' => '49.99',
+        'seats' => $faker->numberBetween(5,30),
+        'category_id' => App\Models\Category::whereCategoryType('license')->first()->id,
+    ];
 
+
+    return $data;
+});

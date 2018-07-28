@@ -1,17 +1,17 @@
 <?php
 
+namespace Tests\Unit;
 
 use App\Models\AssetMaintenance;
+use Illuminate\Support\Carbon;
+use Tests\TestCase;
 
-class AssetMaintenanceTest extends BaseTest
+class AssetMaintenanceTest extends TestCase
 {
     /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
-    /**
-     * @test
+     * A basic test example.
+     *
+     * @return void
      */
     public function it_zeros_out_warranty_if_blank()
     {

@@ -268,6 +268,20 @@ $factory->state(App\Models\AssetModel::class, 'ultrasharp', function ($faker) {
 
 
 
+/*
+|--------------------------------------------------------------------------
+| Tests
+|--------------------------------------------------------------------------
+*/
 
+$factory->state(App\Models\AssetModel::class, 'tests', function ($faker) {
+    return [
+        'name' => $faker->name,
+        'category_id' => App\Models\Category::where('category_type', 'asset')->inRandomOrder()->first()->id,
+        'manufacturer_id' => App\Models\Manufacturer::inRandomOrder()->first()->id,
+        'eol' => $faker->numberBetween(5,24),
+        'depreciation_id' => App\Models\Depreciation::inRandomOrder()->first()->id,
+    ];
+});
 
 

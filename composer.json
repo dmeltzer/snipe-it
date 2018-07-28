@@ -45,6 +45,7 @@
     "codeception/codeception": "^2.4",
     "filp/whoops": "~2.0",
     "fzaninotto/faker": "~1.4",
+    "phpunit/phpunit": "^7.0",
     "roave/security-advisories": "dev-master",
     "squizlabs/php_codesniffer": "*",
     "symfony/css-selector": "4.0.*",
@@ -68,8 +69,11 @@
   "autoload-dev": {
     "classmap": [
       "tests/TestCase.php",
-      "tests/unit/BaseTest.php"
-    ]
+      "codeception-tests/unit/BaseTest.php"
+    ],
+    "psr-4": {
+        "Tests\\": "tests/"
+    }
   },
   "scripts": {
     "post-autoload-dump": [

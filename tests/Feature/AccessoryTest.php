@@ -1,18 +1,22 @@
 <?php
+
+namespace Tests\Feature;
+
 use App\Models\Accessory;
 use App\Models\Category;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\DatabaseTestCase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class AccessoryTest extends BaseTest
+class AccessoryTest extends DatabaseTestCase
 {
-    /**
-    * @var \UnitTester
-    */
-    protected $tester;
 
+    use CreatesValidTestObjects;
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
     public function testFailsEmptyValidation()
     {
         // An Accessory requires a name, a qty, and a category_id.
@@ -59,10 +63,9 @@ class AccessoryTest extends BaseTest
 
         $accessory->save();
         $this->assertTrue($accessory->isValid());
-        $newId = $category->id + 1;
+        $newId = Category::count() + 1;
         $accessory = factory(Accessory::class)->states('apple-bt-keyboard')->make(['category_id' => $newId]);
         $accessory->save();
-
         $this->assertFalse($accessory->isValid());
         $this->assertContains("The selected category id is invalid.", $accessory->getErrors()->get('category_id')[0]);
     }
@@ -70,30 +73,32 @@ class AccessoryTest extends BaseTest
     public function testAnAccessoryBelongsToACompany()
     {
         $accessory = factory(Accessory::class)
-            ->create(['company_id' => factory(App\Models\Company::class)->create()->id]);
-        $this->assertInstanceOf(App\Models\Company::class, $accessory->company);
+            ->create(['company_id' => $this->createValidCompany()->id]);
+        $this->assertInstanceOf(\App\Models\Company::class, $accessory->company);
     }
 
     public function testAnAccessoryHasALocation()
     {
         $accessory = factory(Accessory::class)
-            ->create(['location_id' => factory(App\Models\Location::class)->create()->id]);
-        $this->assertInstanceOf(App\Models\Location::class, $accessory->location);
+            ->create(['location_id' => $this->createValidLocation()->id]);
+        $this->assertInstanceOf(\App\Models\Location::class, $accessory->location);
     }
 
     public function testAnAccessoryBelongsToACategory()
     {
         $accessory = factory(Accessory::class)->states('apple-bt-keyboard')
-            ->create(['category_id' => factory(Category::class)->states('accessory-keyboard-category')->create(['category_type' => 'accessory'])->id]);
-        $this->assertInstanceOf(App\Models\Category::class, $accessory->category);
+            ->create(['category_id' => $this->createValidCategory('accessory-keyboard-category', ['category_type' => 'accessory'])->id]);
+        $this->assertInstanceOf(Category::class, $accessory->category);
         $this->assertEquals('accessory', $accessory->category->category_type);
     }
 
     public function testAnAccessoryHasAManufacturer()
     {
-        $this->createValidManufacturer('apple');
         $this->createValidCategory('accessory-keyboard-category');
-        $accessory = factory(Accessory::class)->states('apple-bt-keyboard')->create(['category_id' => 1]);
-        $this->assertInstanceOf(App\Models\Manufacturer::class, $accessory->manufacturer);
+        $accessory = factory(Accessory::class)->states('apple-bt-keyboard')->create([
+            'category_id' => 1,
+            'manufacturer_id' => $this->createValidManufacturer('apple')->id
+        ]);
+        $this->assertInstanceOf(\App\Models\Manufacturer::class, $accessory->manufacturer);
     }
 }

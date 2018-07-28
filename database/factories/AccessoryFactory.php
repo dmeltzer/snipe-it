@@ -68,3 +68,14 @@ $factory->state(App\Models\Accessory::class, 'microsoft-mouse', function ($faker
 
 });
 
+$factory->state(App\Models\Accessory::class, 'tests', function ($faker) {
+
+    return [
+        'name' => $faker->name,
+        'category_id' => App\Models\Category::whereCategoryType('accessory')->first()->id,
+        'manufacturer_id' => App\Models\Manufacturer::first()->id,
+        'qty' => $faker->numberBetween(10,100),
+        'min_amt' => 2
+    ];
+
+});

@@ -63,4 +63,13 @@ $factory->state(App\Models\Component::class, 'ssd-crucial240', function ($faker)
 });
 
 
+$factory->state(App\Models\Component::class, 'tests', function ($faker) {
+
+    return [
+        'name' => $faker->name,
+        'category_id' => App\Models\Category::whereCategoryType('component')->first()->id,
+        'qty' => $faker->numberBetween(20,100),
+        'min_amt' => 2
+    ];
+});
 

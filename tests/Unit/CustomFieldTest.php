@@ -1,22 +1,12 @@
 <?php
+
+namespace Tests\Unit;
+
 use App\Models\CustomField;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
-/*
- * Test strings for db column names  gathered from
- * http://www.omniglot.com/language/phrases/hovercraft.htm
- */
-class CustomFieldTest extends BaseTest
+class CustomFieldTest extends TestCase
 {
-    protected $tester;
-
-    public function testConstructor()
-    {
-        $customfield = new CustomField();
-    }
 
     public function testFormat()
     {

@@ -96,6 +96,36 @@ return [
             ] : []
         ],
 
+        'mysql_testing' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_HOST', 'localhost'),
+            'port'      => env('DB_PORT', '3306'),
+            'database'  => env('DB_DATABASE', 'snipeittests'),
+            'username'  => env('DB_USERNAME', 'travis'),
+            'password'  => env('DB_PASSWORD', ''),
+            'charset'   => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix'    => env('DB_PREFIX', null),
+            'strict'    => false,
+            'engine'    => 'InnoDB',
+            'unix_socket' => env('DB_SOCKET',''),
+            'dump' => [
+                'dump_binary_path' => env('DB_DUMP_PATH', '/usr/local/bin'),  // only the path, so without 'mysqldump'
+                'use_single_transaction' => false,
+                'timeout' => 60 * 5, // 5 minute timeout
+            ],
+
+            'dump_command_timeout' => 60 * 5, // 5 minute timeout
+            'dump_using_single_transaction' => true, // perform dump using a single transaction
+            'options' => (env('DB_SSL')) ? [
+                PDO::MYSQL_ATTR_SSL_KEY    => env('DB_SSL_KEY_PATH'),  // /path/to/key.pem
+                PDO::MYSQL_ATTR_SSL_CERT   => env('DB_SSL_CERT_PATH'), // /path/to/cert.pem
+                PDO::MYSQL_ATTR_SSL_CA     => env('DB_SSL_CA_PATH'),   // /path/to/ca.pem
+                PDO::MYSQL_ATTR_SSL_CIPHER => env('DB_SSL_CIPHER')
+            ] : []
+        ],
+
+
         'pgsql' => [
             'driver'   => 'pgsql',
             'host'     => env('DB_HOST', 'localhost'),

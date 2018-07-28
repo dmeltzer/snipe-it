@@ -1,10 +1,10 @@
 actor: Tester
 paths:
-    tests: tests
-    log: tests/_output
-    data: tests/_data
-    support: tests/_support
-    envs: tests/_envs
+    tests: codeception-tests
+    log: codeception-tests/_output
+    data: codeception-tests/_data
+    support: codeception-tests/_support
+    envs: codeception-tests/_envs
 settings:
     bootstrap: _bootstrap.php
     colors: true

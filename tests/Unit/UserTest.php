@@ -1,33 +1,14 @@
 <?php
+
+namespace Tests\Unit;
+
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class UserTest extends BaseTest
+class UserTest extends TestCase
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
-    // public function testUserAdd()
-    // {
-    //   $user = factory(User::class)->make();
-    //   $values = [
-    //     'first_name' => $user->first_name,
-    //     'last_name' => $user->last_name,
-    //     'email' => $user->email,
-    //     'username' => $user->username,
-    //     'password' => $user->password,
-    //   ];
-
-    //   User::create($values);
-    //   $this->tester->seeRecord('users', $values);
-    // }
-
-
     public function testFirstNameSplit()
     {
         $fullname = "Natalia Allanovna Romanova-O'Shostakova";
@@ -86,6 +67,5 @@ class UserTest extends BaseTest
         $user = User::generateFormattedNameFromFullName($fullname, 'firstname_lastname');
         $this->assertEquals($expected_username, $user['username']);
     }
-
 
 }
