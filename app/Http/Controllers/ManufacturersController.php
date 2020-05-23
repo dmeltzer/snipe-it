@@ -96,7 +96,7 @@ class ManufacturersController extends Controller
         $this->authorize('update', Manufacturer::class);
 
         // Check if the manufacturer exists
-        if (!$item = Manufacturer::find($id)) {
+        if (!$item = Manufacturer::find($manufacturerId)) {
             return redirect()->route('manufacturers.index')->with('error', trans('admin/manufacturers/message.does_not_exist'));
         }
         

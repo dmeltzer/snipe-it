@@ -229,7 +229,7 @@ $(document).ready(function () {
             },
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
             templateResult: formatDatalist,
-            templateSelection: formatDataSelection
+            // templateSelection: formatDataSelection
         });
 
     });
@@ -277,7 +277,7 @@ $(document).ready(function () {
 		var isMouseUp = false;
 		if(e.params.args.originalSelect2Event) noForceAjax = e.params.args.originalSelect2Event.noForceAjax;
 		if(e.params.args.originalEvent) isMouseUp = e.params.args.originalEvent.type == "mouseup";
-		
+
 		if(value && !noForceAjax && !isMouseUp) {
 			var endpoint = element.data("endpoint");
 			var assetStatusType = element.data("asset-status-type");
@@ -294,17 +294,17 @@ $(document).ready(function () {
                 }).filter(function (x) {
                     return x !== 0;
                 });
-				
+
 				// makes sure we're not selecting the same thing twice for multiples
 				var filteredResponse = response.items.filter(function(item) {
 					return currentlySelected.indexOf(+item.id) < 0;
 				});
 
 				var first = (currentlySelected.length > 0) ? filteredResponse[0] : response.items[0];
-				
+
 				if(first && first.id) {
 					first.selected = true;
-					
+
 					if($("option[value='" + first.id + "']", element).length < 1) {
 						var option = new Option(first.text, first.id, true, true);
 						element.append(option);
@@ -331,33 +331,37 @@ $(document).ready(function () {
             return loading_markup;
         }
 
-        var markup = "<div class='clearfix'>" ;
-        markup +="<div class='pull-left' style='padding-right: 10px;'>";
+        var markup = $(`<div class='clearfix'><div class='pull-left' style='padding-right: 10px;'><div class="image-container" style="width: 30px; height:20px;"></div></div><div class="text-name"></div></div>`);
+        // var markup = "<div class='clearfix'>" ;
+        // markup +="<div class='pull-left' style='padding-right: 10px;'>";
+        // if (datalist.image) {
+        //     markup += "<div style='width: 30px;'><img src='" + datalist.image + "' style='max-height: 20px; max-width: 30px;' alt='" +  datalist.text + "'></div>";
+        // } else {
+        //     markup += "<div style='height: 20px; width: 30px;'></div>";
+        // }
+        // 
         if (datalist.image) {
-            markup += "<div style='width: 30px;'><img src='" + datalist.image + "' style='max-height: 20px; max-width: 30px;' alt='" +  datalist.text + "'></div>";
-        } else {
-            markup += "<div style='height: 20px; width: 30px;'></div>";
+            markup.find(".image-container").attr('style', 'width: 30px;').append(
+                "<img src='" + datalist.image + "' style='max-height: 20px; max-width: 30px;' alt='" +  datalist.text + "'>");
         }
-
-        markup += "</div><div>" + datalist.text + "</div>";
-        markup += "</div>";
+        markup.find('.text-name').text(datalist.text);
         return markup;
     }
 
-    function formatDataSelection (datalist) {
-        // This a heinous workaround for a known bug in Select2.
-        // Without this, the rich selectlists are vulnerable to XSS.
-        // Many thanks to @uberbrady for this fix. It ain't pretty,
-        // but it resolves the issue until Select2 addresses it on their end.
-        //
-        // Bug was reported in 2016 :{
-        // https://github.com/select2/select2/issues/4587
+    // function formatDataSelection (datalist) {
+    //     // This a heinous workaround for a known bug in Select2.
+    //     // Without this, the rich selectlists are vulnerable to XSS.
+    //     // Many thanks to @uberbrady for this fix. It ain't pretty,
+    //     // but it resolves the issue until Select2 addresses it on their end.
+    //     //
+    //     // Bug was reported in 2016 :{
+    //     // https://github.com/select2/select2/issues/4587
 
-        return datalist.text.replace(/>/g, '&gt;')
-            .replace(/</g, '&lt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
+    //     return datalist.text.replace(/>/g, '&gt;')
+    //         .replace(/</g, '&lt;')
+    //         .replace(/"/g, '&quot;')
+    //         .replace(/'/g, '&#039;');
+    // }
 
     // This handles the radio button selectors for the checkout-to-foo options
     // on asset checkout and also on asset edit

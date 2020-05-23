@@ -1,1 +1,4 @@
 * text=auto
+public/build/*.* binary
+public/js/** binary
+public/css/** binary
